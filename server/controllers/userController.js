@@ -21,7 +21,6 @@ module.exports.createUser = async (req, res) => {
     return res.status(200).json({ message: "Created Successfully" })
 }
 
-
 module.exports.loginUser = async (req, res) => {
     try {
         const { email, password } = req.body
@@ -31,7 +30,7 @@ module.exports.loginUser = async (req, res) => {
         if (!user) return res.status(404).json({ message: "This user is not registered" })
 
         let isValid = await verifyHash(password, user.password)
-        if (!isValid) return res.status(400).json({message: "wrong credential"});
+        if (!isValid) return res.status(400).json({ message: "wrong credential" });
 
         const userTokenData = {
             "_id": user._id,
@@ -39,7 +38,7 @@ module.exports.loginUser = async (req, res) => {
         };
 
         const { firstName, lastName } = user
-        const expirationDate =  new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString()
+        const expirationDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString()
         // new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString(); 
         const token = tokenGeneration(userTokenData);
         // Secure; HttpOnly;
@@ -63,7 +62,49 @@ module.exports.loginUser = async (req, res) => {
 
 }
 
+module.exports.updateUser = async (req, res) => {
+    try {
+        const errors = validationMessages(validationResult(req).mapped())
 
-module.exports.dummyFunction = async(req,res)=>{
-    return res.status(200).json({message:"Successfully fetched"})
+        if (isErrorFounds(errors)) return res.status(400).json({ "message": "Validation Error", errors })
+
+
+        const userId = req.userId
+
+        const user = await User.findById(userId)
+
+        if (!user) return res.status(404).json({ message: "User not found" })
+
+        var passowrd = req.body.password
+        if (passowrd) {
+            password = await hashPasswordGenarator(passowrd)
+            req.body.password = password
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(userId, { ...req.body }, { new: true })
+
+        return res.status(200).json({ updatedUser, message: "User Updated Successfully" })
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({ "message": "Something went wrong" })
+    }
+}
+
+module.exports.getUserInfo = async (req, res) => {
+    try {
+        const userId = req.userId
+
+        const user = await User.findById(userId).select('firstName lastName email income')
+
+        if (!user) return res.status(404).json({ message: "User not found" })
+
+        return res.status(200).json(user)
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({ "message": "Something went wrong" })
+    }
+
+
 }

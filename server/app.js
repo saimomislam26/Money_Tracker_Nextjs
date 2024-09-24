@@ -1,5 +1,7 @@
 const express = require('express')
 const userRouter = require('./routers/userRouter')
+const categoryRouter = require('./routers/categoryRouter')
+const spendingRouter = require('./routers/spendingRouter')
 const bodyParser = require("body-parser");
 
 const app = express()
@@ -28,5 +30,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 app.use('/user', userRouter)
+app.use('/category', categoryRouter)
+app.use('/expense',spendingRouter)
 
 module.exports = app

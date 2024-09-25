@@ -2,11 +2,17 @@
 
 import Loading from '@/components/Loading';
 import { loginUser } from '@/lib/api';
+import { setUserInfo } from '@/redux/slices/userSlice';
+import { AppDispatch } from '@/redux/store/store';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { ChangeEvent, useState } from 'react'
+import { useDispatch } from 'react-redux';
+import Cookies from 'js-cookie'
+import { decodeToken } from '@/utils/decodedToken';
 
 const Loginform = () => {
+    const dispatch = useDispatch<AppDispatch>()
     const [userLoginInfo, setUserLoginInfo] = useState({
         email: "",
         password: ""
@@ -36,9 +42,11 @@ const Loginform = () => {
                 password: ""
             })
             router.push("/")
+            const token = Cookies.get('token')
+            const userInfo = decodeToken(token!)
+            dispatch(setUserInfo(userInfo!))
         } catch (error: any) {
             console.log(error);
-
         } finally {
             setIsLoading(false);
         }

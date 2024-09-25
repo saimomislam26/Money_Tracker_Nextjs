@@ -35,6 +35,9 @@ module.exports.loginUser = async (req, res) => {
         const userTokenData = {
             "_id": user._id,
             "email": user.email,
+            "firstName":user.firstName,
+            "lastName":user.lastName,
+            "income":user.income
         };
 
         const { firstName, lastName } = user

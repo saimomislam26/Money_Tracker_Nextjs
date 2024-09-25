@@ -1,24 +1,12 @@
-'use client'
 
 import { RootState } from "@/redux/store/store";
 import axios, { AxiosError } from "axios";
-import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { apiCall } from "@/utils/apiClient";
-import { useRouter } from "next/navigation";
-import { loadUserFromCookies } from "@/utils/auth";
 import HomeModal from "@/components/HomePage/HomeModal";
+import { getUserInfo } from "@/lib/api";
 
-export default function Home() {
+export default async function Home() {
 
-  // const count = useSelector((state: RootState) => state.counter.value);
-  // const income = useSelector((state:RootState)=> state.user.income)
-  // const firstName = useSelector((state:RootState)=>state.user.firstName)
-
-  // console.log({income},{firstName});
-  
-
-  const dispatch = useDispatch();
   // const router = useRouter()
 
   // const fetchDummy = async () => {
@@ -40,9 +28,7 @@ export default function Home() {
   //   }
   // }
 
-  useEffect(() => {
-    loadUserFromCookies(dispatch)
-  }, [])
+ 
 
   return (
     <main className="flex flex-col justify-center items-center gap-y-5 h-dvh bg-white dark:bg-gray-900 text-black dark:text-white border border-red-500">

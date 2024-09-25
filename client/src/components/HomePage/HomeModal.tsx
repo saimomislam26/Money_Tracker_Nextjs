@@ -5,12 +5,10 @@ import { loadUserFromCookies } from '@/utils/auth';
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import Modal from '@mui/material/Modal';
-import { updateUser } from '@/lib/api';
+import { Modal, Box, TextField, Button, Fade, Backdrop, Typography } from '@mui/material';
+import { getUserInfo, updateUser } from '@/lib/api';
 import { AxiosError } from 'axios';
+import { setUserInfo } from '@/redux/slices/userSlice';
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -22,6 +20,9 @@ const style = {
   border: '2px solid #000',
   boxShadow: 24,
   p: 4,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 2, // space between input and button
 };
 
 const HomeModal = () => {
@@ -33,6 +34,8 @@ const router = useRouter()
 
   const dispatch = useDispatch();
 
+  const [isLoading, setIsLoading] = useState(true)
+  const [inputValue, setInputValue] = useState<number>(0);
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -40,8 +43,7 @@ const router = useRouter()
 
   const updateIncome = async () => {
     try {
-      const data = await updateUser({income:50000})
-      console.log(data);
+      const data = await updateUser({income:inputValue})
     } catch (error) {
       console.error('Error fetching user data:', error);
       if (error instanceof AxiosError) {
@@ -52,35 +54,80 @@ const router = useRouter()
         console.error('An unexpected error occurred:', error);
       }
     }
+    handleClose()
   }
+
+  useEffect(()=>{
+    const fetchUserData = async () => {
+      try{
+        const res = await getUserInfo();
+        dispatch(setUserInfo(res))
+      }catch(error){
+        console.log(error);
+        if (error instanceof AxiosError) {
+          if (error.response?.status === 401) {
+            router.push('/login');
+          }
+        } else {
+          console.error('An unexpected error occurred:', error);
+        }
+      }
+      setIsLoading(false); 
+    };
+
+    fetchUserData();
+  },[])
 
   useEffect(() => {
     console.log({income});
     
-    if(open === false && (income === undefined || income === null)){
-      setOpen(true)
-    }
-    loadUserFromCookies(dispatch)
-  }, [income])
+    if (!isLoading && (income === undefined || income === null)) {
+      setOpen(true);
+    } 
+    
+  }, [isLoading, income])
 
   return (
     <div>
-      <Button onClick={handleOpen}>Open modal</Button>
-      <Modal
+      <Button variant="contained" onClick={handleOpen}>
+        Open Modal
+      </Button>
+       <Modal
         open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
+        // onClose={handleClose}
+        closeAfterTransition
+        BackdropComponent={Backdrop}
+        BackdropProps={{
+          timeout: 500, 
+        }}
       >
-        <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Input Your Monthly Income
-          </Typography>
-          <div className="w-full max-w-sm min-w-[200px]">
-            <input type='number' className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder="Type here..."/>
-          </div>
-          <Button onClick={updateIncome}>Submit</Button>
-        </Box>
+        <Fade in={open}>
+          <Box sx={style}>
+            <Typography variant="h6" component="h2" gutterBottom>
+              Enter Your Monthly Income
+            </Typography>
+
+            {/* Input field */}
+            <TextField
+             type="number"
+              label="Input Field"
+              variant="outlined"
+              fullWidth
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value === '' ? 0 : Number(e.target.value))}
+            />
+
+            {/* Submit button */}
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={updateIncome}
+              disabled={!inputValue} 
+            >
+              Submit
+            </Button>
+          </Box>
+        </Fade>
       </Modal>
     </div>
   )

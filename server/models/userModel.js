@@ -15,7 +15,6 @@ const userSchema = new mongoose.Schema({
     },
     income: {
         type: Number,
-        default: 0,
     },
 }, { timestamps: true });
 

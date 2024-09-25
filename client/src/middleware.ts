@@ -17,8 +17,8 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  if(token && request.nextUrl.pathname === '/login'){
-    // console.log("entered");
+  if(token && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/register')){
+    console.log("entered");
     return NextResponse.redirect(new URL('/', request.url));
   }
 
@@ -28,5 +28,5 @@ export function middleware(request: NextRequest) {
 
 // Specify which routes should use this middleware
 export const config = {
-  matcher: ['/', '/profile', '/login'], // Add more protected routes if needed
+  matcher: ['/', '/register', '/login',], // Add more protected routes if needed
 };

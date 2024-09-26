@@ -1,14 +1,14 @@
 'use client'
-import { filterSelectedCategory, setSelectedCategory } from '@/redux/slices/categorySlice';
+import { filterSelectedCategory, setAllCategories, setAllCategoriesAfterDelete, setInitialCategoriesFetch, setSelectedCategory } from '@/redux/slices/categorySlice';
 import { RootState } from '@/redux/store/store';
 import { Box, Button, Chip, Fade, Modal, Stack, TextField, Typography, Backdrop } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import React, { FC, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
-import { createCategory } from '@/lib/categoryApiClient';
+import { createCategory, deleteCategory } from '@/lib/categoryApiClient';
 
 
 const style = {
@@ -35,20 +35,29 @@ interface CategoryChipProps {
     categories: Category[]; // Array of Category objects
 }
 
-
 const CategoryChip: FC<CategoryChipProps> = ({ categories }) => {
 
     const router = useRouter()
 
     const [inputValue, setInputValue] = useState<string>("");
+    const [tempDeleteCategoryId, setTempDeleteCategoryId] = useState<string>("")
+
+    // For Add Category Modal
     const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
-    const savedCategories = useSelector((state: RootState) => state.category.selectedCategory)
+    // For Delete Category Modal
+    const [deleteOpen, setDeleteOpen] = useState(false);
+    const handleDeleteOpen = () => setDeleteOpen(true);
+    const handleDeleteClose = () => setDeleteOpen(false);
 
+    const savedCategories = useSelector((state: RootState) => state.category.selectedCategory)
+    const allCategories = useSelector((state: RootState) => state.category.allCategories)
 
     const dispatch = useDispatch();
+
+    // dispatch(setAllCategoriesAfterDelete(categories))
 
     const handleClick = (selectedCategory: { category: string, name: string }) => {
         let isExist = checkCategoryExist(selectedCategory.category)
@@ -66,7 +75,8 @@ const CategoryChip: FC<CategoryChipProps> = ({ categories }) => {
 
     const createNewCategory = async () => {
         try {
-            const data = await createCategory({name:inputValue})
+            const data = await createCategory({ name: inputValue })
+            dispatch(setAllCategories(data.saveCategory))
         } catch (error) {
             console.error('Error fetching user data:', error);
             if (error instanceof AxiosError) {
@@ -78,12 +88,38 @@ const CategoryChip: FC<CategoryChipProps> = ({ categories }) => {
             }
         }
         handleClose()
+        setInputValue("")
     }
 
+    const handleDelete = async (categoryId: string) => {
+        try {
+            const data = await deleteCategory(categoryId)
+            dispatch(setAllCategoriesAfterDelete({afterDeletedAllCategory:data.afterDeletedAllCategory, categoryId}))
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+            if (error instanceof AxiosError) {
+                if (error.response?.status === 401) {
+                    router.push('/login');
+                }
+            } else {
+                console.error('An unexpected error occurred:', error);
+            }
+        }
+        handleDeleteClose()
+        setTempDeleteCategoryId("")
+    }
+
+    useEffect(()=>{
+        // Initially set all categories to redux
+        // Then after delete and add operation handle categories from redux value
+        dispatch(setInitialCategoriesFetch(categories))
+    },[])
+    
+
     return (
-        <div >
+        <div>
             <Stack direction="row" flexWrap="wrap" spacing={1} gap={1}>
-                {categories.length > 0 && categories.map((val: { _id: string, name: string }) => {
+                {allCategories.length > 0 && allCategories.map((val: { _id: string, name: string }) => {
                     return (
                         <Chip
                             key={val._id}
@@ -91,8 +127,12 @@ const CategoryChip: FC<CategoryChipProps> = ({ categories }) => {
                             onClick={() => handleClick({ category: val?._id, name: val?.name })}
                             color={checkCategoryExist(val._id) ? "primary" : "default"}
                             variant="outlined"
-                            deleteIcon={<DeleteIcon />}
-                            sx={{maxWidth:"120px"}}
+                            onDelete={() => {
+                                setTempDeleteCategoryId(val?._id)
+                                handleDeleteOpen()
+                            }}
+                            // deleteIcon={<DeleteIcon />}
+                            sx={{ maxWidth: "150px" }}
                         />
                     )
                 })}
@@ -128,10 +168,45 @@ const CategoryChip: FC<CategoryChipProps> = ({ categories }) => {
                         <Button
                             variant="contained"
                             color="primary"
-                              onClick={createNewCategory}
+                            onClick={createNewCategory}
                             disabled={!inputValue}
                         >
                             Create
+                        </Button>
+                    </Box>
+                </Fade>
+            </Modal>
+
+            <Modal
+                open={deleteOpen}
+                onClose={handleDeleteClose}
+                closeAfterTransition
+                BackdropComponent={Backdrop}
+                BackdropProps={{
+                    timeout: 500,
+                }}
+            >
+                <Fade in={deleteOpen}>
+                    <Box sx={style}>
+                        <Typography variant="h6" component="h2" gutterBottom>
+                            Are you Sure Want to Delete This Category
+                        </Typography>
+
+
+                        {/* Submit button */}
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => { handleDelete(tempDeleteCategoryId) }}
+                        >
+                            Yes
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleDeleteClose}
+                        >
+                            No
                         </Button>
                     </Box>
                 </Fade>

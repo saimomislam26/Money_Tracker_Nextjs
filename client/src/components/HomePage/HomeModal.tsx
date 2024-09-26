@@ -77,8 +77,7 @@ const router = useRouter()
   },[])
 
   useEffect(() => {
-    console.log({income});
-    
+    // console.log({income});
     if (!isLoading && (income === undefined || income === null)) {
       setOpen(true);
     } 

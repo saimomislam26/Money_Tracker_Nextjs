@@ -19,7 +19,7 @@ module.exports.createCategory = async (req, res) => {
 
         const saveCategory = await new Category({ user: userId, name }).save()
 
-        return res.status(200).json({ saveCategory, message: "Created Successfully" })
+        return res.status(200).json({ saveCategory:{_id:saveCategory._id, name:saveCategory.name}, message: "Created Successfully" })
     } catch (err) {
         console.log(err);
         return res.status(500).json({ message: "Something went wrong" })
@@ -100,7 +100,7 @@ module.exports.getSearchCategory = async (req, res) => {
 module.exports.deleteCategory = async(req,res)=>{
     try{
         const userId = req.userId
-        const categoryId = req.params.id
+        const categoryId = new mongoose.Types.ObjectId(req.params.id)
 
         const category = await Category.findById(categoryId)
 
@@ -112,7 +112,7 @@ module.exports.deleteCategory = async(req,res)=>{
 
         return res.status(200).json({message:"Deleted Successfully", afterDeletedAllCategory})
     }catch(error){
-        console.log(err.message);
-        res.status(500).json({ error: error.message });
+        console.log(error.message);
+        res.status(500).json({ message: "Something Went Wrong" });
     }
 }

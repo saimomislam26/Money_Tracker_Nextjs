@@ -1,11 +1,25 @@
 'use client'
+import { setCategoriesWithAmount } from '@/redux/slices/categorySlice'
 import { RootState } from '@/redux/store/store'
 import { Box, Button, Grid2 as Grid, TextField } from '@mui/material'
-import React from 'react'
-import { useSelector } from 'react-redux'
+import React, { useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
 const CategoryFieldAmount = () => {
     const savedCategories = useSelector((state: RootState) => state.category.selectedCategory)
+    const dispatch = useDispatch()
+
+    const setAmountWithCategoryInfo = (categoryId: string, amount: number) => {
+        dispatch(setCategoriesWithAmount({ categoryId, amount }))
+    }
+
+
+    const isAmountFieldEmpty =(savedCategories:Array<{ category: string, name: string, amount?: number }>)=>{
+        return savedCategories.some(category => !category.hasOwnProperty('amount') || category.amount === 0);
+    }
+
+    console.log({ savedCategories });
+
 
     return (
         <div>
@@ -26,21 +40,21 @@ const CategoryFieldAmount = () => {
                                         variant="outlined"
                                         fullWidth
                                         size='small'
-                                    // value={inputValue}
-                                    // onChange={(e) => setInputValue(e.target.value === '' ? 0 : Number(e.target.value))}
+                                        // value={inputValue}
+                                        onChange={(e) => setAmountWithCategoryInfo(category.category, Number(e.target.value))}
                                     />
                                 </Grid>
 
 
-                             </>
+                            </>
                         )
                     })
                 }
             </Grid>
 
-            <Box sx={{ display:"flex", justifyContent:'center', marginTop:"15px" }}>
+            <Box sx={{ display: "flex", justifyContent: 'center', marginTop: "15px" }}>
 
-               {savedCategories.length > 0 && <Button variant="contained" >Save</Button>}
+                {savedCategories.length > 0 && <Button variant="contained" >Save</Button>}
             </Box>
 
 

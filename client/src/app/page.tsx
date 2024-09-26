@@ -4,40 +4,41 @@ import axios, { AxiosError } from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import HomeModal from "@/components/HomePage/HomeModal";
 import { getUserInfo } from "@/lib/api";
+import { Box, Chip, Grid2 as Grid } from "@mui/material";
+import { getAllCategory } from "@/lib/categoryApiServer";
+import CategoryChip from "@/components/HomePage/CategoryChip";
+import CategoryFieldAmount from "@/components/HomePage/CategoryFieldAmount";
 
 export default async function Home() {
 
-  // const router = useRouter()
+  let categories = []
 
-  // const fetchDummy = async () => {
-  //   try {
-  //     const data = await apiCall({
-  //       url: '/user/dummyfetch',
-  //       method: "GET"
-  //     })
-  //     console.log(data);
-  //   } catch (error) {
-  //     console.error('Error fetching user data:', error);
-  //     if (error instanceof AxiosError) {
-  //       if (error.response?.status === 401) {
-  //         router.push('/login');
-  //       }
-  //     } else {
-  //       console.error('An unexpected error occurred:', error);
-  //     }
-  //   }
-  // }
-
- 
+  try {
+    categories = await getAllCategory();
+  } catch (error) {
+    console.log('An unexpected error occurred:', error);
+  }
 
   return (
-    <main className="flex flex-col justify-center items-center gap-y-5 h-dvh bg-white dark:bg-gray-900 text-black dark:text-white border border-red-500">
-      {/* <h1>name: {firstName} {income!}</h1> */}
-      {/* {<div className="flex flex-row gap-x-5 ">
-        <button className="border border-red-600 shadow-lg px-5 py-2 rounded-md" onClick={() => dispatch(increment())}>Increment</button>
-        <button className="border border-red-600 shadow-lg px-5 py-2 rounded-md" onClick={() => dispatch(decrement())}>Decrement</button>
-      </div>} */}
-      <HomeModal/>
+    <main className="flex flex-col items-center gap-y-5 h-dvh bg-white dark:bg-gray-900 text-black dark:text-white" style={{ height: "calc(100vh - 70px)" }}>
+        <h6 className="text-center mb-5 font-bold font-mono text-lg mt-8">Save Your Daily Expense</h6>
+      <Box sx={{ width: {md:"80vw", lg:"70vw"}, marginTop: "20px", maxWidth:"1700px" }}>
+        <Box sx={{ width: "100%" }}>
+          <Grid container spacing={{sm:2, xs:1, md: 6 }} columns={{ xs: 4, sm: 8, md: 12 }} >
+            <Grid size={{ xs: 12, sm: 12, md: 6 }} >
+              <p className="text-center mb-5 font-bold font-mono text-lg">Category List</p>
+              {/* <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, width:"100%" }}> */}
+                <CategoryChip categories={categories} />
+              {/* </Box> */}
+            </Grid>
+            <Grid size={{ xs: 12, sm: 12, md: 6 }}>
+            <p className="text-center mb-5 font-bold font-mono text-lg">Provide Spent Amount on Selected categories</p>
+            <CategoryFieldAmount/>
+            </Grid>
+          </Grid>
+        </Box>
+      </Box>
+      <HomeModal />
     </main>
   );
 }

@@ -3,8 +3,6 @@ import axios, { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 
 
-
-
 export const registerUser = async (userData: {
   firstName: string;
   lastName: string;
@@ -38,11 +36,9 @@ export const registerUser = async (userData: {
       // Non-Axios error
       console.error('Unexpected error:', error);
       return error
-
     }
   }
 };
-
 
 export const loginUser = async (userData: {
   email: string;
@@ -61,7 +57,7 @@ export const loginUser = async (userData: {
         // Server responded with a status other than 2xx
         console.error('Error response:', error.response.data);
         toast.error(error.response?.data?.message)
-        return error.response.data
+        throw error
       } else if (error.request) {
         // Request was made but no response was received
         console.error('Error request:', error.request);
@@ -70,13 +66,13 @@ export const loginUser = async (userData: {
         // Something happened in setting up the request
         toast.error(error.message)
         console.error('Error message:', error.message);
-        return error
+        throw new Error(error?.message)
 
       }
     } else {
       // Non-Axios error
       console.error('Unexpected error:', error);
-      return error
+      throw new Error('Unexpected error')
 
     }
   }
@@ -123,7 +119,6 @@ export const updateUser = async (userData: {
     }
   }
 };
-
 
 export const getUserInfo = async () => {
   try {

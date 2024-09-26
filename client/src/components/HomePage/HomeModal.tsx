@@ -29,8 +29,6 @@ const HomeModal = () => {
 const router = useRouter()
 
   const income = useSelector((state: RootState) => state.user.income)
-  const firstName = useSelector((state: RootState) => state.user.firstName)
-
 
   const dispatch = useDispatch();
 
@@ -84,17 +82,16 @@ const router = useRouter()
     if (!isLoading && (income === undefined || income === null)) {
       setOpen(true);
     } 
-    
   }, [isLoading, income])
 
   return (
     <div>
-      <Button variant="contained" onClick={handleOpen}>
+      {/* <Button variant="contained" onClick={handleOpen}>
         Open Modal
-      </Button>
+      </Button> */}
        <Modal
         open={open}
-        // onClose={handleClose}
+        onClose={handleClose}
         closeAfterTransition
         BackdropComponent={Backdrop}
         BackdropProps={{

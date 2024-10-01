@@ -1,16 +1,22 @@
 
-
 import HomeModal from "@/components/HomePage/HomeModal";
 import { Box, Chip, Grid2 as Grid } from "@mui/material";
 import { getAllCategory } from "@/lib/categoryApiServer";
 import CategoryChip from "@/components/HomePage/CategoryChip";
 import CategoryFieldAmount from "@/components/HomePage/CategoryFieldAmount";
+import { revalidatePath } from "next/cache";
+
+
+export const dynamic = 'force-dynamic';
 
 export default async function Home() {
 
   let categories = []
   try {
+    // console.log("Entered");
     categories = await getAllCategory();
+
+    revalidatePath('/');
   } catch (error) {
     console.log('An unexpected error occurred:', error);
   }

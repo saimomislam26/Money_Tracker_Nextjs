@@ -94,7 +94,7 @@ const CategoryChip: FC<CategoryChipProps> = ({ categories }) => {
     const handleDelete = async (categoryId: string) => {
         try {
             const data = await deleteCategory(categoryId)
-            dispatch(setAllCategoriesAfterDelete({afterDeletedAllCategory:data.afterDeletedAllCategory, categoryId}))
+            dispatch(setAllCategoriesAfterDelete({ afterDeletedAllCategory: data.afterDeletedAllCategory, categoryId }))
         } catch (error) {
             console.error('Error fetching user data:', error);
             if (error instanceof AxiosError) {
@@ -109,12 +109,15 @@ const CategoryChip: FC<CategoryChipProps> = ({ categories }) => {
         setTempDeleteCategoryId("")
     }
 
-    useEffect(()=>{
-        // Initially set all categories to redux
-        // Then after delete and add operation handle categories from redux value
-        dispatch(setInitialCategoriesFetch(categories))
-    },[])
-    
+    useEffect(() => {
+        if (JSON.stringify(allCategories) !== JSON.stringify(categories)) {
+            router.refresh()
+            // Initially set all categories to redux
+            // Then after delete and add operation handle categories from redux value
+            dispatch(setInitialCategoriesFetch(categories))
+        }
+    }, [categories])
+
 
     return (
         <div>

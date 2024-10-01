@@ -6,18 +6,15 @@ export const getAllCategory = async () => {
         const cookieStore = cookies();
         const token = cookieStore.get('token');
         // console.log({token});
-        
+
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/category/get-all-category`, {
             headers: {
-                // 'Cache-Control': 'no-cache, no-store, must-revalidate',
-                // 'Pragma': 'no-cache',
-                // 'Expires': '0',
                 Authorization: `Bearer ${token?.value}`
             }
         })
         // console.log(response.data);
-        
-        //   toast.success(response.data?.message);
+
+        // toast.success(response.data?.message);
         return response.data;
 
     } catch (error) {

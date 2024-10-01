@@ -41,7 +41,7 @@ const SpendingTable = () => {
   const [spendingData, setSpendingData] = useState(data);
 
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Check if screen is mobile
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   // Handle editing the amount for each category
   const handleAmountChange = (dayIndex: number, categoryIndex: number, newAmount: number) => {

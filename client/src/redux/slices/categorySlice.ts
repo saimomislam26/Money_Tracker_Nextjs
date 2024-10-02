@@ -32,6 +32,7 @@ export const categorySlice = createSlice({
       state.selectedCategory[indexNo].amount = action.payload.amount
     },
     setInitialCategoriesFetch(state, action: PayloadAction<Array<{ _id: string, name: string }>>) {
+      // console.log("From Slice",action.payload);
       state.allCategories = action.payload
     },
     setSelectedCategory(state, action: PayloadAction<{ category: string, name: string }>) {

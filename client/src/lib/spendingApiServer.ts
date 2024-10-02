@@ -1,18 +1,18 @@
 import axios from "axios";
 import { cookies } from "next/headers";
 
-export const getAllCategory = async () => {
+export const getAllExpense = async () => {
     try {
         const cookieStore = cookies();
         const token = cookieStore.get('token');
         // console.log({token});
 
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/category/get-all-category`, {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/expense/get-all-expense/2024/09?sort=serial`, {
             headers: {
                 Authorization: `Bearer ${token?.value}`
             }
         })
-        // console.log(response.data);
+        console.log(response.data);
 
         // toast.success(response.data?.message);
         return response.data;

@@ -1,10 +1,12 @@
 
 
 import HomeModal from "@/components/HomePage/HomeModal";
-import { Box, Chip, Grid2 as Grid } from "@mui/material";
+import { Box, Grid2 as Grid } from "@mui/material";
 import { getAllCategory } from "@/lib/categoryApiServer";
 import CategoryChip from "@/components/HomePage/CategoryChip";
 import CategoryFieldAmount from "@/components/HomePage/CategoryFieldAmount";
+
+export const dynamic = 'force-dynamic';
 
 export default async function Home() {
 
@@ -23,6 +25,8 @@ export default async function Home() {
     
     return `${day}-${month}-${year}`;
 }
+// console.log(getUTCDate());
+
 
   return (
     <main className="flex flex-col items-center gap-y-5 h-dvh bg-white dark:bg-gray-900 text-black dark:text-white" style={{ height: "calc(100vh - 70px)" }}>
@@ -48,3 +52,5 @@ export default async function Home() {
     </main>
   );
 }
+
+

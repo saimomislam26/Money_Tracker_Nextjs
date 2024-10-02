@@ -8,11 +8,16 @@ export const getAllCategory = async () => {
     try {
         const cookieStore = cookies();
         const token = cookieStore.get('token');
+        console.log("Token from get all category serverssss",{token});
+        
 
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/category/get-all-category`, {
             headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate', // Prevent caching
+                'Pragma': 'no-cache',
+                'Expires': '0',
                 Authorization: `Bearer ${token?.value}`
-            }
+            },
         })
         //   toast.success(response.data?.message);
         return response.data;

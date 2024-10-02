@@ -107,6 +107,7 @@ export const updateUser = async (userData: {
         throw error;
       } else if (error.request) {
         console.error('Error request:', error.request);
+        toast.error('No response from server. Please try again later');
         throw new Error('No response from server. Please try again later.');
       } else {
         console.error('Error message:', error.message);

@@ -66,7 +66,7 @@ module.exports.getAllSpending = async (req, res) => {
     
     if (isErrorFounds(errors)) return res.status(400).json({ "message": "Validation Error", errors });
     
-    console.log(year, month);
+    // console.log(year, month);
     
     const userId = req.userId;
     const { sort = 'serial' } = req.query;

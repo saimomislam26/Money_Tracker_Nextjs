@@ -14,6 +14,6 @@ mongoose.connect(database).then(()=>{
     console.log("Error",err);
 })
 
-app.listen(process.env.PORT | '5000',()=>{
-    console.log("Port is listening on port 5000");
+app.listen(process.env.PORT | 5000,()=>{
+    console.log("Port is listening on port 5000....");
 })

@@ -13,7 +13,7 @@ export const getAllCategory = async () => {
                 // 'Pragma': 'no-cache',
                 // 'Expires': '0',
                 Authorization: `Bearer ${token?.value}`
-            }
+            },
         })
         // console.log(response.data);
         

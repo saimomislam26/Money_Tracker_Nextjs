@@ -1,6 +1,6 @@
 
 import HomeModal from "@/components/HomePage/HomeModal";
-import { Box, Chip, Grid2 as Grid } from "@mui/material";
+import { Box, Grid2 as Grid } from "@mui/material";
 import { getAllCategory } from "@/lib/categoryApiServer";
 import CategoryChip from "@/components/HomePage/CategoryChip";
 import CategoryFieldAmount from "@/components/HomePage/CategoryFieldAmount";
@@ -54,3 +54,5 @@ export default async function Home() {
     </main>
   );
 }
+
+

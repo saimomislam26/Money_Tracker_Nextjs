@@ -1,22 +1,23 @@
 'use client'
 
 import { RootState } from '@/redux/store/store';
-import { loadUserFromCookies } from '@/utils/auth';
 import { useRouter } from "next/navigation";
 import React, { FC, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { Modal, Box, TextField, Button, Fade, Backdrop, Typography } from '@mui/material';
-import { getUserInfo, updateUser } from '@/lib/api';
+import { Modal, Box, TextField, Button, Fade, Backdrop, Typography, Grid2 as Grid } from '@mui/material';
 import { AxiosError } from 'axios';
-import { setUserInfo } from '@/redux/slices/userSlice';
 import { getCategory } from '@/lib/categoryApiClient';
+import CategoryChip from '../HomePage/CategoryChip';
+import { clearSavedCategory } from '@/redux/slices/categorySlice';
+import CategoryFieldAmount from './CreateFieldAmount';
 
 const style = {
     position: 'absolute' as 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
+    width: "80%",
+    height: 500,
     bgcolor: 'background.paper',
     border: '2px solid #000',
     boxShadow: 24,
@@ -24,24 +25,31 @@ const style = {
     display: 'flex',
     flexDirection: 'column',
     gap: 2, // space between input and button
+    overflowY: 'auto'
 };
+
 
 interface ExpenseTableModalProps {
     open: boolean;
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    filteredDate: {month:number | null, year:number | null};
+    selectedToEditDay: number | null;
+    sort: string
 }
 
-const ExpenseTableModal: FC<ExpenseTableModalProps> = ({ open, setOpen }) => {
+const ExpenseTableModal: FC<ExpenseTableModalProps> = ({ open, setOpen, filteredDate,selectedToEditDay,sort }) => {
+    const dispatch = useDispatch()
+
     const router = useRouter()
 
-    const [isLoading, setIsLoading] = useState(true)
-    const handleOpen = () => setOpen(true);
+    const [allCategories, setAllCategories] = useState([])
     const handleClose = () => setOpen(false);
 
 
     const getAllCategory = async () => {
         try {
             const data = await getCategory()
+            setAllCategories(data)
             console.log({ data });
 
         } catch (error) {
@@ -57,8 +65,9 @@ const ExpenseTableModal: FC<ExpenseTableModalProps> = ({ open, setOpen }) => {
     }
 
     useEffect(() => {
-        if (open) {
-            getAllCategory
+        if (open === true) {
+            console.log(open)
+            getAllCategory()
         }
     }, [open])
 
@@ -70,7 +79,10 @@ const ExpenseTableModal: FC<ExpenseTableModalProps> = ({ open, setOpen }) => {
       </Button> */}
             <Modal
                 open={open}
-                onClose={handleClose}
+                onClose={() => {
+                    handleClose()
+                    dispatch(clearSavedCategory())
+                }}
                 closeAfterTransition
                 BackdropComponent={Backdrop}
                 BackdropProps={{
@@ -78,30 +90,24 @@ const ExpenseTableModal: FC<ExpenseTableModalProps> = ({ open, setOpen }) => {
                 }}
             >
                 <Fade in={open}>
-                    <Box sx={style}>
-                        <Typography variant="h6" component="h2" gutterBottom>
-                            Enter Your Monthly Income
-                        </Typography>
-
-                        {/* Input field */}
-                        <TextField
-                            type="number"
-                            label="Input Field"
-                            variant="outlined"
-                            fullWidth
-
-                        />
-
-                        {/* Submit button */}
-                        <Button
-                            variant="contained"
-                            color="primary"
-                        //   onClick={updateIncome}
-                        //   disabled={!inputValue} 
-                        >
-                            Submit
-                        </Button>
-                    </Box>
+                    {allCategories &&
+                        <Box sx={style}>
+                            <Box sx={{ border: "2px soliod red" }}>
+                                <Grid container spacing={{ sm: 2, xs: 1, md: 6 }} columns={{ xs: 4, sm: 8, md: 12 }} >
+                                    <Grid size={{ xs: 12, sm: 12, md: 6 }} >
+                                        <p className="text-center mb-5 font-bold font-mono text-lg">Category List</p>
+                                        {/* <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, width:"100%" }}> */}
+                                        <CategoryChip categories={allCategories} />
+                                        {/* </Box> */}
+                                    </Grid>
+                                    <Grid size={{ xs: 12, sm: 12, md: 6 }}>
+                                        <p className="text-center mb-5 font-bold font-mono text-lg">Provide Spent Amount on Selected categories</p>
+                                        <CategoryFieldAmount date={{day:String(selectedToEditDay),month:String(filteredDate.month), year:String(filteredDate.year)}} setOpen={setOpen} sort={sort}/>
+                                    </Grid>
+                                </Grid>
+                            </Box>
+                        </Box>
+                    }
                 </Fade>
             </Modal>
         </div>

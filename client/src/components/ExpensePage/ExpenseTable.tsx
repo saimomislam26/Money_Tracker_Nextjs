@@ -1,5 +1,5 @@
 'use client'
-import React, { ChangeEvent, FC, useState } from 'react'
+import React, { ChangeEvent, FC, useEffect, useState } from 'react'
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -14,9 +14,13 @@ import {
     MenuItem,
     SelectChangeEvent,
 } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import UpdateIcon from '@mui/icons-material/Update';
+import CancelIcon from '@mui/icons-material/Cancel';
 import { useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { getExpense } from '@/lib/spendingApiClient';
+import { getExpense, updateExpense } from '@/lib/spendingApiClient';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import Loading from '../Loading';
@@ -53,9 +57,12 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
 
     const router = useRouter()
     const [loading, setLoading] = useState(false)
-    const [filteredDate, setFilteredDate] = useState<{ month: number | null, year: number | null }>({ month: null, year: null })
+    const [filteredDate, setFilteredDate] = useState<{ month: number | null, year: number | null }>({ month: date.getMonth() + 1, year: date.getFullYear() })
     const [sortOrder, setSortOrder] = useState<string>("serial")
     const [open, setOpen] = useState(false);
+    const [selectedToEditDay, setSelectedToEditDay] = useState<number | null>(null)
+    const [isEdit, setIsEdit] = useState<Boolean>(false)
+    const [tempDataStore, setTempDataStore] = useState<Array<Expense>>([])
 
     const [spendingData, setSpendingData] = useState(expenses);
 
@@ -67,8 +74,30 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
         const updatedData = [...spendingData];
         updatedData[dayIndex].categories[categoryIndex].amount = newAmount;
         updatedData[dayIndex].totalSpending = updatedData[dayIndex].categories.reduce((sum, cat) => sum + cat.amount, 0);
-        setSpendingData(updatedData);
+        setSpendingData(updatedData);   
     };
+    // console.log({tempDataStore});
+    
+
+    const handleUpdateExpense = async (dayIndex:number) => {
+        try {
+            const data = await updateExpense(filteredDate.year!,filteredDate.month!,selectedToEditDay!,spendingData[dayIndex].categories!)
+            // console.log({ data });
+            setIsEdit(false)
+            setTempDataStore([])
+
+        } catch (error) {
+            setIsEdit(false)
+            console.error('Error fetching user data:', error);
+            if (error instanceof AxiosError) {
+                if (error.response?.status === 401) {
+                    router.push('/login');
+                }
+            } else {
+                console.error('An unexpected error occurred:', error);
+            }
+        }
+    }
 
     const handleDate = (date: Dayjs | null) => {
         if (date) {
@@ -113,6 +142,12 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
         }
         return null;
     };
+
+    useEffect(() => {
+        if (!open) {
+            handleGetExpense(filteredDate.year!, filteredDate.month!, sortOrder)
+        }
+    }, [open])
 
     if (loading) {
         return (
@@ -194,9 +229,18 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                                             </Box>
                                         </Typography>
                                     </CardContent>
-                                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 2 }}>
-                                        <Button variant="contained" color="primary">Details</Button>
-                                    </Box>
+                                    {
+                                        dayData.categories.length > 0 &&
+                                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 2 }}>
+                                            <Button variant="contained" color="primary"
+                                                onClick={() => {
+                                                    setOpen(true)
+                                                    setSelectedToEditDay(dayData.day)
+                                                }}
+                                            >Edit
+                                            </Button>
+                                        </Box>
+                                    }
                                 </Card>
                             </Grid>
                         ))}
@@ -206,16 +250,20 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                     <TableContainer component={Paper}>
                         <Table sx={{ minWidth: 650 }} aria-label="spending table">
                             <TableHead>
-                                <TableRow>
+                                <TableRow sx={{ backgroundColor: "#2176D2" }}>
                                     <TableCell>Day</TableCell>
                                     <TableCell>Categories</TableCell>
                                     <TableCell>Amount</TableCell>
+                                    <TableCell>Total Category</TableCell>
                                     <TableCell>Total Spending</TableCell>
+                                    <TableCell>Action</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {
                                     spendingData.map((dayData, dayIndex) => {
+
+                                        // Days which have data
 
                                         return dayData.categories.length > 0 ?
                                             (
@@ -226,7 +274,12 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
 
                                                             return (
 
-                                                                <TableRow key={`${dayData.day}-${category.category}`}>
+                                                                <TableRow
+                                                                    key={`${dayData.day}-${category.category}`}
+                                                                    sx={{
+                                                                        backgroundColor: dayIndex % 2 === 0 ? 'grey.100' : 'white',
+                                                                    }}
+                                                                >
                                                                     {categoryIndex === 0 && (
                                                                         <TableCell rowSpan={dayData.categories.length}>
                                                                             <Typography>{dayData.day}</Typography>
@@ -234,56 +287,102 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                                                                     )}
                                                                     <TableCell>{category.category}</TableCell>
                                                                     <TableCell>
-                                                                        <TextField
-                                                                            variant="outlined"
-                                                                            size="small"
-                                                                            value={category.amount}
-                                                                            onChange={(e) => handleAmountChange(dayIndex, categoryIndex, parseFloat(e.target.value))}
-                                                                            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                                                                        />
+                                                                        {
+                                                                            (isEdit && selectedToEditDay === dayData.day) ? <TextField
+                                                                                variant="outlined"
+                                                                                size="small"
+                                                                                value={category.amount}
+                                                                                onChange={
+                                                                                    (e) => handleAmountChange(dayIndex, categoryIndex, parseFloat(e.target.value))
+                                                                                }
+                                                                                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                                                                            /> :
+                                                                                <Typography>{category.amount}</Typography>
+                                                                        }
                                                                     </TableCell>
+                                                                    {categoryIndex === 0 && (
+                                                                        <TableCell rowSpan={dayData.categories.length}>
+                                                                            <Typography>{dayData.totalCategory}</Typography>
+                                                                        </TableCell>
+                                                                    )}
                                                                     {categoryIndex === 0 && (
                                                                         <TableCell rowSpan={dayData.categories.length}>
                                                                             <Typography>{dayData.totalSpending}</Typography>
                                                                         </TableCell>
                                                                     )}
+                                                                    {
+                                                                        categoryIndex === 0 && (
+                                                                            <TableCell rowSpan={dayData.categories.length}>
+                                                                                {
+                                                                                    (isEdit && selectedToEditDay === dayData.day) ? (
+                                                                                        <>
+                                                                                            <UpdateIcon titleAccess='Update' sx={{ marginRight: "10px" }} onClick={()=>{handleUpdateExpense(dayIndex)}}/>
+                                                                                            <CancelIcon titleAccess='Cancel' onClick={() => {
+                                                                                                setIsEdit(false)
+                                                                                                setSpendingData([...tempDataStore])
+                                                                                                setTempDataStore([])
+                                                                                            }} />
+                                                                                        </>
+
+                                                                                    ) :
+                                                                                        (
+                                                                                            <>
+                                                                                                <EditIcon titleAccess='Edit' sx={{ marginRight: "10px" }} onClick={() => {
+                                                                                                    setIsEdit(true)
+                                                                                                    setSelectedToEditDay(dayData.day)
+                                                                                                    setTempDataStore([...spendingData])
+                                                                                                }} />
+                                                                                                <DeleteIcon titleAccess='Delete' />
+                                                                                            </>
+                                                                                        )
+
+
+                                                                                }
+                                                                            </TableCell>
+                                                                        )
+                                                                    }
+
                                                                 </TableRow>
                                                             )
                                                         })
                                                     }
                                                 </>
                                             ) :
+                                            // days Which don't have data
                                             (
                                                 <>
-                                                    <TableRow key={`${dayData.day}`}>
+                                                    <TableRow key={`${dayData.day}`} sx={{
+                                                        backgroundColor: dayIndex % 2 === 0 ? 'grey.100' : 'white',
+                                                    }}>
 
                                                         <TableCell >
                                                             <Typography>{dayData.day}</Typography>
                                                         </TableCell>
                                                         <TableCell>
-                                                            <Box sx={{display:"flex", flexDirection:"column"}}>
+                                                            <Box sx={{ display: "flex", flexDirection: "column" }}>
                                                                 No category Inputted
                                                                 <Button
                                                                     size='small'
                                                                     variant='contained'
-                                                                    sx={{maxWidth:138}}
-                                                                    onClick={()=>{setOpen(true)}}
+                                                                    sx={{ maxWidth: 138 }}
+                                                                    onClick={() => {
+                                                                        setOpen(true)
+                                                                        setSelectedToEditDay(dayData.day)
+                                                                    }}
                                                                 >Edit
                                                                 </Button>
                                                             </Box>
                                                         </TableCell>
                                                         <TableCell>
-                                                            {/* <TextField
-                                                                    variant="outlined"
-                                                                    size="small"
-                                                                    value={category.amount}
-                                                                    onChange={(e) => handleAmountChange(dayIndex, categoryIndex, parseFloat(e.target.value))}
-                                                                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                                                                /> */}
                                                             No category Inputted
                                                         </TableCell>
                                                         <TableCell >
+                                                            <Typography>{dayData.totalCategory}</Typography>
+                                                        </TableCell>
+                                                        <TableCell >
                                                             <Typography>{dayData.totalSpending}</Typography>
+                                                        </TableCell>
+                                                        <TableCell >
                                                         </TableCell>
                                                     </TableRow>
                                                 </>
@@ -295,7 +394,7 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                     </TableContainer>
                 )}
             </Box>
-            <ExpenseTableModal open={open} setOpen={setOpen} />
+            <ExpenseTableModal open={open} setOpen={setOpen} filteredDate={filteredDate} selectedToEditDay={selectedToEditDay} sort={sortOrder} />
         </Box>
     )
 }

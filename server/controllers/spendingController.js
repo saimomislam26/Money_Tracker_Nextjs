@@ -82,7 +82,21 @@ module.exports.getAllSpending = async (req, res) => {
         // Function to get the total days in the month
         const totalDaysInMonth = (year, month) => new Date(year, month, 0).getDate();
     
-        const daysInMonth = totalDaysInMonth(year, month); // Get the total number of days in the month
+       
+
+        const currentYear = new Date().getFullYear()
+        const currentDate = new Date().getDate()
+        const currentMonth = new Date().getMonth() + 1
+        // console.log({currentYear},{currentMonth});
+        
+        let daysInMonth
+        if(currentYear == year && currentMonth == month){
+            daysInMonth = currentDate 
+        }else{
+            daysInMonth = totalDaysInMonth(year,month)
+        }
+
+        // Get the total number of days in the month
     
         let response = Array.from({ length: daysInMonth }, (_, i) => {
             const currentDay = i + 1;
@@ -124,3 +138,59 @@ module.exports.getAllSpending = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 }
+
+module.exports.updateSpending = async (req, res) => {
+    // const errors = validationMessages(validationResult(req).mapped());
+
+    // if (isErrorFounds(errors)) return res.status(400).json({ "message": "Validation Error", errors });
+
+    const { year, month, day, categories } = req.body; // categories will be an array of {categoryId, amount}
+    const userId = req.userId;
+
+    try {
+        // Find the spending record for the user for the given year and month
+        let spending = await Spending.findOne({ user: userId, year, month });
+
+        if (!spending) {
+            return res.status(404).json({ message: "Spending record not found for this month." });
+        }
+
+        if (spending.isLocked) {
+            return res.status(400).json({ message: "Cannot modify a locked month's data" });
+        }
+
+        // Find the day in the spending data
+        const dayIndex = spending.days.findIndex(d => d.day === day);
+
+        if (dayIndex === -1) {
+            return res.status(404).json({ message: "Spending record not found for this day." });
+        }
+
+        // Update each category amount
+        categories.forEach(categoryInput => {
+            const categoryIndex = spending.days[dayIndex].categories.findIndex(c => c.category.equals(categoryInput._id));
+
+            if (categoryIndex >= 0) {
+                // Update the amount if category exists
+                spending.days[dayIndex].categories[categoryIndex].amount = categoryInput.amount;
+            } else {
+                // Add the category if it doesn't exist
+                spending.days[dayIndex].categories.push({
+                    category: categoryInput.categoryId,
+                    amount: categoryInput.amount,
+                });
+            }
+        });
+
+        // Save the updated spending document
+        await spending.save();
+
+        // Populate the updated document for better response readability
+        const updatedSpending = await Spending.findById(spending._id).populate('days.categories.category', 'name');
+
+        res.status(200).json({ updatedSpending, message: "Expenses updated successfully" });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

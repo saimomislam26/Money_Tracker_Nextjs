@@ -1,5 +1,5 @@
 'use client'
-import React, { ChangeEvent, FC, useState } from 'react'
+import React, { ChangeEvent, FC, useEffect, useState } from 'react'
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -53,9 +53,10 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
 
     const router = useRouter()
     const [loading, setLoading] = useState(false)
-    const [filteredDate, setFilteredDate] = useState<{ month: number | null, year: number | null }>({ month: null, year: null })
+    const [filteredDate, setFilteredDate] = useState<{ month: number | null, year: number | null }>({ month: date.getMonth() + 1, year: date.getFullYear() })
     const [sortOrder, setSortOrder] = useState<string>("serial")
     const [open, setOpen] = useState(false);
+    const [selectedToEditDay, setSelectedToEditDay] = useState<number | null>(null)
 
     const [spendingData, setSpendingData] = useState(expenses);
 
@@ -113,6 +114,12 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
         }
         return null;
     };
+
+    useEffect(() => {
+        if (!open) {
+            handleGetExpense(filteredDate.year!, filteredDate.month!, sortOrder)
+        }
+    }, [open])
 
     if (loading) {
         return (
@@ -261,13 +268,16 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                                                             <Typography>{dayData.day}</Typography>
                                                         </TableCell>
                                                         <TableCell>
-                                                            <Box sx={{display:"flex", flexDirection:"column"}}>
+                                                            <Box sx={{ display: "flex", flexDirection: "column" }}>
                                                                 No category Inputted
                                                                 <Button
                                                                     size='small'
                                                                     variant='contained'
-                                                                    sx={{maxWidth:138}}
-                                                                    onClick={()=>{setOpen(true)}}
+                                                                    sx={{ maxWidth: 138 }}
+                                                                    onClick={() => {
+                                                                        setOpen(true)
+                                                                        setSelectedToEditDay(dayData.day)
+                                                                    }}
                                                                 >Edit
                                                                 </Button>
                                                             </Box>
@@ -295,7 +305,7 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                     </TableContainer>
                 )}
             </Box>
-            <ExpenseTableModal open={open} setOpen={setOpen} />
+            <ExpenseTableModal open={open} setOpen={setOpen} filteredDate={filteredDate} selectedToEditDay={selectedToEditDay} sort={sortOrder} />
         </Box>
     )
 }

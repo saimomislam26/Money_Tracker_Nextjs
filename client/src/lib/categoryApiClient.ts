@@ -45,7 +45,7 @@ export const createCategory = async (categoryName: {
     try {
       const response = await apiCall({
         url: '/category/get-all-category',
-        method: 'POST',
+        method: 'GET',
         withCredentials: true
       });
       return response.data;

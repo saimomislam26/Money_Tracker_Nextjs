@@ -2,7 +2,7 @@
 
 import { RootState } from '@/redux/store/store';
 import { useRouter } from "next/navigation";
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, FunctionComponent, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { Modal, Box, TextField, Button, Fade, Backdrop, Typography, Grid2 as Grid } from '@mui/material';
 import { AxiosError } from 'axios';
@@ -34,10 +34,11 @@ interface ExpenseTableModalProps {
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
     filteredDate: {month:number | null, year:number | null};
     selectedToEditDay: number | null;
-    sort: string
+    sort: string,
+    handleGetExpense:(year: number, month: number, sort: string)=> void
 }
 
-const ExpenseTableModal: FC<ExpenseTableModalProps> = ({ open, setOpen, filteredDate,selectedToEditDay,sort }) => {
+const ExpenseTableModal: FC<ExpenseTableModalProps> = ({ open, setOpen, filteredDate,selectedToEditDay,sort,handleGetExpense }) => {
     const dispatch = useDispatch()
 
     const router = useRouter()
@@ -50,7 +51,7 @@ const ExpenseTableModal: FC<ExpenseTableModalProps> = ({ open, setOpen, filtered
         try {
             const data = await getCategory()
             setAllCategories(data)
-            console.log({ data });
+            // console.log({ data });
 
         } catch (error) {
             console.error('Error fetching user data:', error);
@@ -71,12 +72,8 @@ const ExpenseTableModal: FC<ExpenseTableModalProps> = ({ open, setOpen, filtered
         }
     }, [open])
 
-
     return (
         <div>
-            {/* <Button variant="contained" onClick={handleOpen}>
-        Open Modal
-      </Button> */}
             <Modal
                 open={open}
                 onClose={() => {
@@ -102,7 +99,7 @@ const ExpenseTableModal: FC<ExpenseTableModalProps> = ({ open, setOpen, filtered
                                     </Grid>
                                     <Grid size={{ xs: 12, sm: 12, md: 6 }}>
                                         <p className="text-center mb-5 font-bold font-mono text-lg">Provide Spent Amount on Selected categories</p>
-                                        <CategoryFieldAmount date={{day:String(selectedToEditDay),month:String(filteredDate.month), year:String(filteredDate.year)}} setOpen={setOpen} sort={sort}/>
+                                        <CategoryFieldAmount date={{day:String(selectedToEditDay),month:String(filteredDate.month), year:String(filteredDate.year)}} setOpen={setOpen} sort={sort} handleGetExpense={handleGetExpense}/>
                                     </Grid>
                                 </Grid>
                             </Box>

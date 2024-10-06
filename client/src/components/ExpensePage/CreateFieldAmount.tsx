@@ -17,11 +17,12 @@ interface DateProps {
         year: string;
     };
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    sort:string
+    sort: string,
+    handleGetExpense: (year: number, month: number, sort: string) => void
 }
 
-const CategoryFieldAmount: FC<DateProps> = ({ date,setOpen,sort }) => {
-  
+const CategoryFieldAmount: FC<DateProps> = ({ date, setOpen, sort, handleGetExpense }) => {
+
     const router = useRouter()
     const savedCategories = useSelector((state: RootState) => state.category.selectedCategory)
     const dispatch = useDispatch()
@@ -47,6 +48,7 @@ const CategoryFieldAmount: FC<DateProps> = ({ date,setOpen,sort }) => {
         try {
             const data = await createExpense({ ...date, categories: savedCategories })
             dispatch(clearSavedCategory())
+            handleGetExpense(Number(date.year), Number(date.month), sort)
             setOpen(false)
         } catch (error) {
             console.error('Error fetching user data:', error);
@@ -100,7 +102,6 @@ const CategoryFieldAmount: FC<DateProps> = ({ date,setOpen,sort }) => {
             </Grid>
 
             <Box sx={{ display: "flex", justifyContent: 'center', marginTop: "15px" }}>
-
                 {savedCategories.length > 0 && <Button variant="contained" onClick={handleCreateExpense}>Save</Button>}
             </Box>
 

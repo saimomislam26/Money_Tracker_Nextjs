@@ -13,14 +13,16 @@ import {
     Select,
     MenuItem,
     SelectChangeEvent,
+    IconButton,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import UpdateIcon from '@mui/icons-material/Update';
 import CancelIcon from '@mui/icons-material/Cancel';
+import AddIcon from '@mui/icons-material/Add';
 import { useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { getExpense, updateExpense } from '@/lib/spendingApiClient';
+import { getExpense, getSummaryOfSpendingSpecificMonth, updateExpense } from '@/lib/spendingApiClient';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import Loading from '../Loading';
@@ -74,14 +76,14 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
         const updatedData = [...spendingData];
         updatedData[dayIndex].categories[categoryIndex].amount = newAmount;
         updatedData[dayIndex].totalSpending = updatedData[dayIndex].categories.reduce((sum, cat) => sum + cat.amount, 0);
-        setSpendingData(updatedData);   
+        setSpendingData(updatedData);
     };
     // console.log({tempDataStore});
-    
 
-    const handleUpdateExpense = async (dayIndex:number) => {
+
+    const handleUpdateExpense = async (dayIndex: number) => {
         try {
-            const data = await updateExpense(filteredDate.year!,filteredDate.month!,selectedToEditDay!,spendingData[dayIndex].categories!)
+            const data = await updateExpense(filteredDate.year!, filteredDate.month!, selectedToEditDay!, spendingData[dayIndex].categories!)
             // console.log({ data });
             setIsEdit(false)
             setTempDataStore([])
@@ -134,6 +136,27 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
         }
     }
 
+    const getSummaryMonthly = async (year: number, month: number) => {
+        setLoading(true)
+        try {
+            const data = await getSummaryOfSpendingSpecificMonth(year, month)
+            console.log("Spending Data",data);
+            
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+            if (error instanceof AxiosError) {
+                if (error.response?.status === 401) {
+                    router.push('/login');
+                }
+            } else {
+                console.error('An unexpected error occurred:', error);
+            }
+        }
+        finally {
+            setLoading(false)
+        }
+    }
+
     // Get the Dayjs object for the selected month and year
     const getSelectedDate = () => {
         if (filteredDate.month && filteredDate.year) {
@@ -143,11 +166,15 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
         return null;
     };
 
-    useEffect(() => {
-        if (!open) {
-            handleGetExpense(filteredDate.year!, filteredDate.month!, sortOrder)
-        }
-    }, [open])
+    useEffect(()=>{
+        getSummaryMonthly(filteredDate.year!, filteredDate.month!)
+    },[])
+
+    // useEffect(() => {
+    //     if (!open) {
+    //         handleGetExpense(filteredDate.year!, filteredDate.month!, sortOrder)
+    //     }
+    // }, [open])
 
     if (loading) {
         return (
@@ -208,7 +235,59 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                             <Grid item xs={12} key={dayData.day}>
                                 <Card variant="outlined">
                                     <CardContent>
-                                        <Typography variant="h6" component="div">Day: {dayData.day}</Typography>
+                                        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                                            <Typography variant="h6" component="div">Day: {dayData.day}</Typography>
+                                            <Box>
+                                                {
+                                                    (isEdit && selectedToEditDay === dayData.day) ? (
+                                                        <>
+                                                            <IconButton>
+                                                                <UpdateIcon titleAccess='Update' sx={{}} onClick={() => { handleUpdateExpense(dayIndex) }} />
+                                                            </IconButton>
+                                                            <IconButton>
+                                                                <CancelIcon titleAccess='Cancel' onClick={() => {
+                                                                    setIsEdit(false)
+                                                                    setSpendingData([...tempDataStore])
+                                                                    setTempDataStore([])
+                                                                }} />
+                                                            </IconButton>
+                                                        </>
+
+                                                    ) :
+                                                        (
+                                                            <>
+                                                                <IconButton
+                                                                    disabled={(isEdit && selectedToEditDay !== dayData.day)}
+                                                                    onClick={() => {
+                                                                        setOpen(true)
+                                                                        setSelectedToEditDay(dayData.day)
+                                                                    }}
+                                                                >
+                                                                    <AddIcon titleAccess='Add New Category' />
+                                                                </IconButton>
+                                                                <IconButton
+                                                                    disabled={(isEdit && selectedToEditDay !== dayData.day)}
+                                                                    onClick={() => {
+                                                                        setIsEdit(true)
+                                                                        setSelectedToEditDay(dayData.day)
+                                                                        setTempDataStore(structuredClone(spendingData))
+                                                                    }}
+                                                                >
+                                                                    <EditIcon titleAccess='Edit Existing'
+                                                                    />
+                                                                </IconButton>
+                                                                <IconButton>
+                                                                    <DeleteIcon titleAccess='Delete' />
+                                                                </IconButton>
+
+                                                            </>
+                                                        )
+
+
+                                                }
+                                            </Box>
+
+                                        </Box>
                                         <Typography>Categories: {dayData.totalCategory}</Typography>
                                         <Typography>Total Spending: ${dayData.totalSpending}</Typography>
                                         <Typography component="div">
@@ -216,31 +295,24 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                                                 {dayData.categories.map((category, categoryIndex) => (
                                                     <Box key={category.category} sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                                                         <Typography sx={{ mr: 1 }}>{category.category}:</Typography>
-                                                        <TextField
-                                                            variant="outlined"
-                                                            size="small"
-                                                            value={category.amount}
-                                                            onChange={(e) => handleAmountChange(dayIndex, categoryIndex, parseFloat(e.target.value))}
-                                                            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                                                            sx={{ width: '100px' }}
-                                                        />
+                                                        {
+                                                            (isEdit && selectedToEditDay === dayData.day) ? <TextField
+                                                                variant="outlined"
+                                                                size="small"
+                                                                value={category.amount}
+                                                                onChange={
+                                                                    (e) => handleAmountChange(dayIndex, categoryIndex, parseFloat(e.target.value))
+                                                                }
+                                                                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                                                            /> :
+                                                                <Typography>{category.amount}</Typography>
+                                                        }
                                                     </Box>
                                                 ))}
                                             </Box>
                                         </Typography>
                                     </CardContent>
-                                    {
-                                        dayData.categories.length > 0 &&
-                                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 2 }}>
-                                            <Button variant="contained" color="primary"
-                                                onClick={() => {
-                                                    setOpen(true)
-                                                    setSelectedToEditDay(dayData.day)
-                                                }}
-                                            >Edit
-                                            </Button>
-                                        </Box>
-                                    }
+
                                 </Card>
                             </Grid>
                         ))}
@@ -270,10 +342,7 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                                                 <>
                                                     {
                                                         dayData.categories.map((category, categoryIndex) => {
-
-
                                                             return (
-
                                                                 <TableRow
                                                                     key={`${dayData.day}-${category.category}`}
                                                                     sx={{
@@ -316,23 +385,47 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                                                                                 {
                                                                                     (isEdit && selectedToEditDay === dayData.day) ? (
                                                                                         <>
-                                                                                            <UpdateIcon titleAccess='Update' sx={{ marginRight: "10px" }} onClick={()=>{handleUpdateExpense(dayIndex)}}/>
-                                                                                            <CancelIcon titleAccess='Cancel' onClick={() => {
-                                                                                                setIsEdit(false)
-                                                                                                setSpendingData([...tempDataStore])
-                                                                                                setTempDataStore([])
-                                                                                            }} />
+                                                                                            <IconButton>
+                                                                                                <UpdateIcon titleAccess='Update' onClick={() => { handleUpdateExpense(dayIndex) }} />
+                                                                                            </IconButton>
+                                                                                            <IconButton>
+                                                                                                <CancelIcon titleAccess='Cancel' onClick={() => {
+                                                                                                    setIsEdit(false)
+                                                                                                    setSpendingData([...tempDataStore])
+                                                                                                    setTempDataStore([])
+                                                                                                }} />
+                                                                                            </IconButton>
                                                                                         </>
 
                                                                                     ) :
                                                                                         (
                                                                                             <>
-                                                                                                <EditIcon titleAccess='Edit' sx={{ marginRight: "10px" }} onClick={() => {
-                                                                                                    setIsEdit(true)
-                                                                                                    setSelectedToEditDay(dayData.day)
-                                                                                                    setTempDataStore([...spendingData])
-                                                                                                }} />
-                                                                                                <DeleteIcon titleAccess='Delete' />
+                                                                                                <IconButton
+                                                                                                    disabled={(isEdit && selectedToEditDay !== dayData.day)}
+                                                                                                    onClick={() => {
+                                                                                                        setOpen(true)
+                                                                                                        setSelectedToEditDay(dayData.day)
+                                                                                                    }}
+                                                                                                >
+                                                                                                    <AddIcon titleAccess='Add new Category' />
+                                                                                                </IconButton>
+                                                                                                <IconButton
+                                                                                                    disabled={(isEdit && selectedToEditDay !== dayData.day)}
+                                                                                                    sx={{}} onClick={() => {
+                                                                                                        setIsEdit(true)
+                                                                                                        setSelectedToEditDay(dayData.day)
+                                                                                                        setTempDataStore(structuredClone(spendingData))
+                                                                                                    }}
+                                                                                                >
+                                                                                                    <EditIcon titleAccess='Edit Existing'
+                                                                                                    />
+                                                                                                </IconButton>
+                                                                                                <IconButton
+                                                                                                    disabled={(isEdit && selectedToEditDay !== dayData.day)}
+                                                                                                >
+                                                                                                    <DeleteIcon titleAccess='Delete' />
+                                                                                                </IconButton>
+
                                                                                             </>
                                                                                         )
 
@@ -360,21 +453,11 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                                                         </TableCell>
                                                         <TableCell>
                                                             <Box sx={{ display: "flex", flexDirection: "column" }}>
-                                                                No category Inputted
-                                                                <Button
-                                                                    size='small'
-                                                                    variant='contained'
-                                                                    sx={{ maxWidth: 138 }}
-                                                                    onClick={() => {
-                                                                        setOpen(true)
-                                                                        setSelectedToEditDay(dayData.day)
-                                                                    }}
-                                                                >Edit
-                                                                </Button>
+                                                                No Expense Created
                                                             </Box>
                                                         </TableCell>
                                                         <TableCell>
-                                                            No category Inputted
+                                                            0
                                                         </TableCell>
                                                         <TableCell >
                                                             <Typography>{dayData.totalCategory}</Typography>
@@ -382,7 +465,55 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                                                         <TableCell >
                                                             <Typography>{dayData.totalSpending}</Typography>
                                                         </TableCell>
-                                                        <TableCell >
+
+                                                        <TableCell>
+                                                            {
+                                                                (isEdit && selectedToEditDay === dayData.day) ? (
+                                                                    <>
+                                                                        <IconButton>
+                                                                            <UpdateIcon titleAccess='Update' onClick={() => { handleUpdateExpense(dayIndex) }} />
+                                                                        </IconButton>
+                                                                        <IconButton>
+                                                                            <CancelIcon titleAccess='Cancel' onClick={() => {
+                                                                                setIsEdit(false)
+                                                                                setSpendingData([...tempDataStore])
+                                                                                setTempDataStore([])
+                                                                            }} />
+                                                                        </IconButton>
+                                                                    </>
+
+                                                                ) :
+                                                                    (
+                                                                        <>
+                                                                            <IconButton
+                                                                                 disabled={(isEdit && selectedToEditDay !== dayData.day)}
+                                                                                onClick={() => {
+                                                                                    setOpen(true)
+                                                                                    setSelectedToEditDay(dayData.day)
+                                                                                }}
+                                                                            >
+                                                                                <AddIcon titleAccess='Add new Category' />
+                                                                            </IconButton>
+                                                                            <IconButton
+                                                                                disabled={(isEdit && selectedToEditDay !== dayData.day)}
+                                                                                sx={{}} onClick={() => {
+                                                                                    setIsEdit(true)
+                                                                                    setSelectedToEditDay(dayData.day)
+                                                                                    setTempDataStore(structuredClone(spendingData))
+                                                                                }}
+                                                                            >
+                                                                                <EditIcon titleAccess='Edit Existing'
+                                                                                />
+                                                                            </IconButton>
+                                                                            <IconButton
+                                                                                disabled={(isEdit && selectedToEditDay !== dayData.day)}
+                                                                            >
+                                                                                <DeleteIcon titleAccess='Delete' />
+                                                                            </IconButton>
+
+                                                                        </>
+                                                                    )
+                                                            }
                                                         </TableCell>
                                                     </TableRow>
                                                 </>
@@ -394,7 +525,7 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                     </TableContainer>
                 )}
             </Box>
-            <ExpenseTableModal open={open} setOpen={setOpen} filteredDate={filteredDate} selectedToEditDay={selectedToEditDay} sort={sortOrder} />
+            <ExpenseTableModal open={open} setOpen={setOpen} filteredDate={filteredDate} selectedToEditDay={selectedToEditDay} sort={sortOrder} handleGetExpense={handleGetExpense}/>
         </Box>
     )
 }

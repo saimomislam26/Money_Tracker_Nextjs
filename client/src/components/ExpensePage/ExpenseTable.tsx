@@ -27,6 +27,8 @@ import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import Loading from '../Loading';
 import ExpenseTableModal from './ExpenseTableModal';
+import { RootState } from '@/redux/store/store';
+import { useSelector } from 'react-redux';
 
 
 
@@ -67,6 +69,10 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
     const [tempDataStore, setTempDataStore] = useState<Array<Expense>>([])
 
     const [spendingData, setSpendingData] = useState(expenses);
+    const income = useSelector((state: RootState) => state.user.income)
+
+    console.log({ income });
+
 
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -140,8 +146,8 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
         setLoading(true)
         try {
             const data = await getSummaryOfSpendingSpecificMonth(year, month)
-            console.log("Spending Data",data);
-            
+            console.log("Spending Data", data);
+
         } catch (error) {
             console.error('Error fetching user data:', error);
             if (error instanceof AxiosError) {
@@ -166,9 +172,9 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
         return null;
     };
 
-    useEffect(()=>{
+    useEffect(() => {
         getSummaryMonthly(filteredDate.year!, filteredDate.month!)
-    },[])
+    }, [])
 
     // useEffect(() => {
     //     if (!open) {
@@ -486,7 +492,7 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                                                                     (
                                                                         <>
                                                                             <IconButton
-                                                                                 disabled={(isEdit && selectedToEditDay !== dayData.day)}
+                                                                                disabled={(isEdit && selectedToEditDay !== dayData.day)}
                                                                                 onClick={() => {
                                                                                     setOpen(true)
                                                                                     setSelectedToEditDay(dayData.day)
@@ -525,7 +531,7 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                     </TableContainer>
                 )}
             </Box>
-            <ExpenseTableModal open={open} setOpen={setOpen} filteredDate={filteredDate} selectedToEditDay={selectedToEditDay} sort={sortOrder} handleGetExpense={handleGetExpense}/>
+            <ExpenseTableModal open={open} setOpen={setOpen} filteredDate={filteredDate} selectedToEditDay={selectedToEditDay} sort={sortOrder} handleGetExpense={handleGetExpense} />
         </Box>
     )
 }

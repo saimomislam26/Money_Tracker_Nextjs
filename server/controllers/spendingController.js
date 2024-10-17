@@ -205,8 +205,8 @@ module.exports.getSummaryOfSpendingSpecificMonth = async (req, res) => {
             {
                 $match: {
                     user: new mongoose.Types.ObjectId(userId),
-                    year: year,
-                    month: month
+                    year: Number(year),
+                    month: Number(month)
                 }
             },
             { $unwind: '$days' },

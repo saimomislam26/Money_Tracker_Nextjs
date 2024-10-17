@@ -1,5 +1,5 @@
 // src/store/counterSlice.ts
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface UserState {
     _id: string | null
@@ -16,6 +16,8 @@ const initialState: UserState = {
     email: null,
     income: null
 };
+
+export const initUserFromCookies = createAction('user/initUserFromCookies');
 
 export const userSlice = createSlice({
     name: 'user',

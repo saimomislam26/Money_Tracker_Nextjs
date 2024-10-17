@@ -1,4 +1,8 @@
-import ExpenseTable from '@/components/ExpensePage/ExpenseTable';
+import dynamic from 'next/dynamic';
+// For avoiding Hydration error
+// Only render in client side
+const ExpenseTable =  dynamic(()=> import('@/components/ExpensePage/ExpenseTable'), { ssr: false })
+// import ExpenseTable from '@/components/ExpensePage/ExpenseTable';
 import { getAllExpense } from '@/lib/spendingApiServer';
 
 
@@ -20,7 +24,7 @@ const SpendingTable = async () => {
   }
 
   return (
-    <ExpenseTable expenses={expenses} />
+      <ExpenseTable expenses={expenses} />
   );
 };
 

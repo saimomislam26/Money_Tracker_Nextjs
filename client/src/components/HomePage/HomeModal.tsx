@@ -29,6 +29,8 @@ const HomeModal = () => {
 const router = useRouter()
 
   const income = useSelector((state: RootState) => state.user.income)
+  // console.log({income});
+  
 
   const dispatch = useDispatch();
 

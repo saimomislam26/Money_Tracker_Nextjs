@@ -7,14 +7,16 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs, { Dayjs } from 'dayjs';
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-    Paper, TextField, Typography, Card, CardContent, Button, Box, Grid,
+    Paper, TextField, Typography, Card, CardContent, Button, Box,
     FormControl,
     InputLabel,
     Select,
     MenuItem,
     SelectChangeEvent,
     IconButton,
+    Divider,
 } from '@mui/material';
+import Grid from '@mui/material/Grid'
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import UpdateIcon from '@mui/icons-material/Update';
@@ -27,7 +29,48 @@ import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import Loading from '../Loading';
 import ExpenseTableModal from './ExpenseTableModal';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store/store';
+import { styled } from '@mui/material/styles';
+import CardHeader from '@mui/material/CardHeader';
+import CardMedia from '@mui/material/CardMedia';
+import CardActions from '@mui/material/CardActions';
+import Collapse from '@mui/material/Collapse';
+import Avatar from '@mui/material/Avatar';
+import { IconButtonProps } from '@mui/material/IconButton';
+import { red } from '@mui/material/colors';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import ShareIcon from '@mui/icons-material/Share';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
+interface ExpandMoreProps extends IconButtonProps {
+    expand: boolean;
+}
+
+const ExpandMore = styled((props: ExpandMoreProps) => {
+    const { expand, ...other } = props;
+    return <IconButton {...other} />;
+})(({ theme }) => ({
+    marginLeft: 'auto',
+    transition: theme.transitions.create('transform', {
+        duration: theme.transitions.duration.shortest,
+    }),
+    variants: [
+        {
+            props: ({ expand }) => !expand,
+            style: {
+                transform: 'rotate(0deg)',
+            },
+        },
+        {
+            props: ({ expand }) => !!expand,
+            style: {
+                transform: 'rotate(180deg)',
+            },
+        },
+    ],
+}));
 
 
 interface Category {
@@ -42,6 +85,11 @@ interface Expense {
     categories: Category[],
     totalSpending: number,
     totalCategory: number
+}
+
+interface SummaryCategory {
+    category: string,
+    totalAmount: number
 }
 
 interface ExpenseProps {
@@ -68,6 +116,17 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
 
     const [spendingData, setSpendingData] = useState(expenses);
 
+    const [summaryCategories, setSummaryCategories] = useState<Array<SummaryCategory>>([])
+    const [totalAmountExpenseSummary, setTotalAmountExpenseSummary] = useState<number>(0)
+
+    const income = useSelector((state: RootState) => state.user.income)
+
+    const [expanded, setExpanded] = React.useState(false);
+
+    const handleExpandClick = () => {
+        setExpanded(!expanded);
+    };
+
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -78,8 +137,6 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
         updatedData[dayIndex].totalSpending = updatedData[dayIndex].categories.reduce((sum, cat) => sum + cat.amount, 0);
         setSpendingData(updatedData);
     };
-    // console.log({tempDataStore});
-
 
     const handleUpdateExpense = async (dayIndex: number) => {
         try {
@@ -120,6 +177,7 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
         try {
             const data = await getExpense(year, month, sort)
             setSpendingData(data)
+            getSummaryMonthly(filteredDate.year!, filteredDate.month!)
 
         } catch (error) {
             console.error('Error fetching user data:', error);
@@ -140,8 +198,9 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
         setLoading(true)
         try {
             const data = await getSummaryOfSpendingSpecificMonth(year, month)
-            console.log("Spending Data",data);
-            
+            // console.log("Spending Data", data);
+            setSummaryCategories(data?.summary.categories)
+            setTotalAmountExpenseSummary(data?.summary?.totalMonthlyAmount)
         } catch (error) {
             console.error('Error fetching user data:', error);
             if (error instanceof AxiosError) {
@@ -166,15 +225,9 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
         return null;
     };
 
-    useEffect(()=>{
+    useEffect(() => {
         getSummaryMonthly(filteredDate.year!, filteredDate.month!)
-    },[])
-
-    // useEffect(() => {
-    //     if (!open) {
-    //         handleGetExpense(filteredDate.year!, filteredDate.month!, sortOrder)
-    //     }
-    // }, [open])
+    }, [])
 
     if (loading) {
         return (
@@ -182,52 +235,125 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
         )
     }
 
-
     return (
-        <Box sx={{ width: '100%', display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", }}>
 
-            {/* Filter Option */}
-            <Box sx={{ width: "90%", marginTop: "30px", display: "flex", flexWrap: "wrap", gap: 2, alignItems: "center" }}>
-                <LocalizationProvider dateAdapter={AdapterDayjs} >
-                    <DemoContainer components={['DatePicker', 'DatePicker', 'DatePicker']} sx={{ width: 200 }}>
-                        <DatePicker
-                            label={''} views={['month', 'year']}
-                            value={getSelectedDate()}
-                            onChange={(e) => { handleDate(e) }}
+        <Box sx={{ width: '100%', display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }} >
+
+            <Grid container spacing={2} sx={{ width: "90%", marginTop: "30px" }}>
+                {/* Filter Option */}
+                <Grid item xs={12} md={6} sx={{ display: 'flex' }}>
+                    <Box sx={{ width: "90%", display: "flex", flexWrap: "wrap", gap: 2, alignItems: "center", justifyContent: { sm: 'center', xs: 'center', md: 'flex-start' } }}>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DemoContainer components={['DatePicker', 'DatePicker', 'DatePicker']} sx={{ width: 200 }}>
+                                <DatePicker
+                                    label={''}
+                                    views={['month', 'year']}
+                                    value={getSelectedDate()}
+                                    onChange={(e) => { handleDate(e) }}
+                                />
+                            </DemoContainer>
+                        </LocalizationProvider>
+                        <Button
+                            size="large"
+                            variant="contained"
+                            color="primary"
+                            onClick={() => { handleGetExpense(filteredDate.year! || currentYear, filteredDate.month! || currentMonth, sortOrder) }}
+                            sx={{ 
+                                width: 200, 
+                                height: '56px',  // Set Button height to match DatePicker height
+                                padding: 0,      // Adjust padding to better match DatePicker styling
+                                fontSize: '0.875rem'  // Optional: Adjust font size to match DatePicker text size
+                            }}
+                        >
+                            Get Expense
+                        </Button>
+                        <FormControl sx={{ width: 200 }}>
+                            <InputLabel id="demo-select-small-label">Sort</InputLabel>
+                            <Select
+                                labelId="demo-select-small-label"
+                                id="demo-select-small"
+                                value={sortOrder}
+                                label="Sort"
+                                onChange={(e: SelectChangeEvent<string>) => {
+                                    setSortOrder(e.target.value)
+                                    handleGetExpense(filteredDate.year! || currentYear, filteredDate.month! || currentMonth, e.target.value)
+                                }}
+                            >
+                                <MenuItem value={'serial'}>Serial</MenuItem>
+                                <MenuItem value={'asc'}>Low - High</MenuItem>
+                                <MenuItem value={'desc'}>High - Low</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Box>
+                </Grid>
+
+                {/* Summary Box */}
+                <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: "flex-end" }}>
+                    <Card sx={{ maxWidth: 600, width: 600 }}>
+                        <CardHeader
+                            title="Summary of Expense"
+                            subheader={`${filteredDate.year} / ${filteredDate.month}`}
                         />
-                    </DemoContainer>
-                </LocalizationProvider>
-                <Button
-                    size="large"
-                    variant="contained"
-                    color="primary"
-                    onClick={() => { handleGetExpense(filteredDate.year! || currentYear, filteredDate.month! || currentMonth, sortOrder) }}
-                    sx={{ width: 200 }}
-                >
-                    Get Expense
-                </Button>
-                <FormControl sx={{ width: 200 }} >
-                    <InputLabel id="demo-select-small-label">Sort</InputLabel>
-                    <Select
-                        labelId="demo-select-small-label"
-                        id="demo-select-small"
-                        value={sortOrder}
-                        label="Sort"
-                        onChange={(e: SelectChangeEvent<string>) => {
-                            setSortOrder(e.target.value)
-                            handleGetExpense(filteredDate.year! || currentYear, filteredDate.month! || currentMonth, e.target.value)
-                        }}
-                    >
-                        <MenuItem value={'serial'}>Serial</MenuItem>
-                        <MenuItem value={'asc'}>Low - High</MenuItem>
-                        <MenuItem value={'desc'}>High- Low</MenuItem>
-                    </Select>
-                </FormControl>
-            </Box>
+                        <CardContent>
+                            <Box display="flex" justifyContent="space-between" sx={{ mb: 1 }}>
+                                <Typography variant="body2" color="text.secondary">
+                                    Income:
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    {income}
+                                </Typography>
+                            </Box>
+                            <Box display="flex" justifyContent="space-between" sx={{ mb: 1 }}>
+                                <Typography variant="body2" color="text.secondary">
+                                    Expense:
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    {totalAmountExpenseSummary}
+                                </Typography>
+                            </Box>
+                            <Divider sx={{ my: 1 }} />
+                            <Box display="flex" justifyContent="space-between">
+                                <Typography variant="body2" color="text.secondary">
+                                    Savings:
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    {income! - totalAmountExpenseSummary}
+                                </Typography>
+                            </Box>
+                        </CardContent>
+                        <CardActions disableSpacing>
+                            <ExpandMore
+                                expand={expanded}
+                                onClick={handleExpandClick}
+                                aria-expanded={expanded}
+                                aria-label="Show Detail"
+                            >
+                                <ExpandMoreIcon />
+                            </ExpandMore>
+                        </CardActions>
+                        <Collapse in={expanded} timeout="auto" unmountOnExit>
+                            <CardContent>
+                                <Typography sx={{ marginBottom: 2 }}>Detail</Typography>
+                                {summaryCategories &&
+                                    summaryCategories.map((category, index) => (
+                                        <Box key={index} display="flex" justifyContent="space-between" sx={{ mb: 1 }}>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {category.category}:
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {category.totalAmount}
+                                            </Typography>
+                                        </Box>
+                                    ))}
+                            </CardContent>
+                        </Collapse>
+                    </Card>
+                </Grid>
+            </Grid>
 
             {/* Expense Table */}
             <Box sx={{ width: "90%", marginTop: "50px" }}>
-                <h6 className='text-center font-mono font-bold font-black-800'>Summary of the Month</h6>
+                <h6 className='text-center font-mono font-bold font-black-800 mb-3'>Expense of the Month</h6>
                 {isMobile ? (
                     // Mobile view - Display as cards
                     <Grid container spacing={2}>
@@ -333,15 +459,15 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                             </TableHead>
                             <TableBody>
                                 {
-                                    spendingData.map((dayData, dayIndex) => {
+                                    spendingData && spendingData.map((dayData, dayIndex) => {
 
                                         // Days which have data
 
                                         return dayData.categories.length > 0 ?
                                             (
-                                                <>
+                                                <React.Fragment key={dayIndex}>
                                                     {
-                                                        dayData.categories.map((category, categoryIndex) => {
+                                                        dayData.categories && dayData.categories.map((category, categoryIndex) => {
                                                             return (
                                                                 <TableRow
                                                                     key={`${dayData.day}-${category.category}`}
@@ -439,11 +565,11 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                                                             )
                                                         })
                                                     }
-                                                </>
+                                                </React.Fragment>
                                             ) :
                                             // days Which don't have data
                                             (
-                                                <>
+                                                <React.Fragment key={dayIndex}>
                                                     <TableRow key={`${dayData.day}`} sx={{
                                                         backgroundColor: dayIndex % 2 === 0 ? 'grey.100' : 'white',
                                                     }}>
@@ -486,7 +612,7 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                                                                     (
                                                                         <>
                                                                             <IconButton
-                                                                                 disabled={(isEdit && selectedToEditDay !== dayData.day)}
+                                                                                disabled={(isEdit && selectedToEditDay !== dayData.day)}
                                                                                 onClick={() => {
                                                                                     setOpen(true)
                                                                                     setSelectedToEditDay(dayData.day)
@@ -516,7 +642,7 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                                                             }
                                                         </TableCell>
                                                     </TableRow>
-                                                </>
+                                                </React.Fragment>
                                             )
                                     })
                                 }
@@ -525,7 +651,7 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                     </TableContainer>
                 )}
             </Box>
-            <ExpenseTableModal open={open} setOpen={setOpen} filteredDate={filteredDate} selectedToEditDay={selectedToEditDay} sort={sortOrder} handleGetExpense={handleGetExpense}/>
+            <ExpenseTableModal open={open} setOpen={setOpen} filteredDate={filteredDate} selectedToEditDay={selectedToEditDay} sort={sortOrder} handleGetExpense={handleGetExpense} />
         </Box>
     )
 }

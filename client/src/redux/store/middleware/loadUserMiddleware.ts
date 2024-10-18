@@ -1,20 +1,23 @@
 import { Middleware } from '@reduxjs/toolkit';
 import Cookies from 'js-cookie';
-import { initUserFromCookies, setUserInfo } from '@/redux/slices/userSlice';
-import {decodeToken} from '@/utils/decodedToken';
+import { clearUserInfo, setUserInfo } from '@/redux/slices/userSlice';
+import { decodeToken } from '@/utils/decodedToken';
 
-export const loadUserMiddleware: Middleware = storeAPI => next => action => {
-    if ((action as { type: string }).type === initUserFromCookies.type) {
+export const loadUserMiddleware: Middleware = storeAPI => next => (action) => {
+
+    if ((action as { type: string }).type === 'user/initializeAuth' || ((action as { type: string }).type === '@@INIT')) {
         const token = Cookies.get('token');
-        console.log("From Middleware", token);
+
         if (token) {
             const userInfo = decodeToken(token);
-            console.log("From Middleware", userInfo);
-            
             if (userInfo) {
                 storeAPI.dispatch(setUserInfo(userInfo));
             }
+        } else {
+            storeAPI.dispatch(clearUserInfo());
         }
     }
+
+
     return next(action);
 };

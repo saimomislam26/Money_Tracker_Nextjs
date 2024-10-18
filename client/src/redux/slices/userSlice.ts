@@ -3,18 +3,18 @@ import { createAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface UserState {
     _id: string | null
-    firstName: string | null
-    lastName: string | null
-    email: string | null
-    income: number | null,
+    firstName: string
+    lastName: string
+    email: string
+    income: number,
 }
 
 const initialState: UserState = {
     _id: null,
-    firstName: null,
-    lastName: null,
-    email: null,
-    income: null
+    firstName: "",
+    lastName: "",
+    email: "",
+    income: 0
 };
 
 export const initUserFromCookies = createAction('user/initUserFromCookies');
@@ -32,10 +32,10 @@ export const userSlice = createSlice({
         },
         clearUserInfo(state) {
             state._id = null;
-            state.email = null;
-            state.income = null;
-            state.firstName = null;
-            state.lastName = null
+            state.email = "";
+            state.income = 0;
+            state.firstName = "";
+            state.lastName = ""
         },
     },
 });

@@ -1,7 +1,7 @@
 'use client'
 import { filterSelectedCategory, setAllCategories, setAllCategoriesAfterDelete, setInitialCategoriesFetch, setSelectedCategory } from '@/redux/slices/categorySlice';
 import { RootState } from '@/redux/store/store';
-import { Box, Button, Chip, Fade, Modal, Stack, TextField, Typography, Backdrop } from '@mui/material'
+import { Box, Button, Chip, Fade, Modal, Stack, TextField, Typography, Backdrop, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import React, { FC, useEffect, useState } from 'react'
@@ -41,6 +41,7 @@ const CategoryChip: FC<CategoryChipProps> = ({ categories }) => {
 
     const [inputValue, setInputValue] = useState<string>("");
     const [tempDeleteCategoryId, setTempDeleteCategoryId] = useState<string>("")
+    const [categoryType, setCategoryType] = useState<string>("")
 
     // For Add Category Modal
     const [open, setOpen] = useState(false);
@@ -156,6 +157,22 @@ const CategoryChip: FC<CategoryChipProps> = ({ categories }) => {
                         <Typography variant="h6" component="h2" gutterBottom>
                             Create New Category
                         </Typography>
+
+                        <FormControl sx={{ width: 200 }}>
+                            <InputLabel id="demo-select-small-label">Category Selection</InputLabel>
+                            <Select
+                                labelId="demo-select-small-label"
+                                id="demo-select-small"
+                                value={categoryType}
+                                label="Selection"
+                                onChange={(e: SelectChangeEvent<string>) => {
+                                    setCategoryType(e.target.value)
+                                }}
+                            >
+                                <MenuItem value={'general'}>General Category</MenuItem>
+                                <MenuItem value={'monthly'}>Month Specific Category</MenuItem>
+                            </Select>
+                        </FormControl>
 
                         {/* Input field */}
                         <TextField

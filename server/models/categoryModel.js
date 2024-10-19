@@ -11,6 +11,14 @@ const categorySchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+  year: {
+    type: Number,
+    default: null,  // null for general categories
+  },
+  month: {
+    type: Number,
+    default: null,  // null for general categories
+  },
 }, { timestamps: true });
 
 const Category = mongoose.model('Category', categorySchema);

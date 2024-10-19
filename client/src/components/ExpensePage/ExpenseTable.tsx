@@ -260,8 +260,8 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                             variant="contained"
                             color="primary"
                             onClick={() => { handleGetExpense(filteredDate.year! || currentYear, filteredDate.month! || currentMonth, sortOrder) }}
-                            sx={{ 
-                                width: 200, 
+                            sx={{
+                                width: 200,
                                 height: '56px',  // Set Button height to match DatePicker height
                                 padding: 0,      // Adjust padding to better match DatePicker styling
                                 fontSize: '0.875rem'  // Optional: Adjust font size to match DatePicker text size

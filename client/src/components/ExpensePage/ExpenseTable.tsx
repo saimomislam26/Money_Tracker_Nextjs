@@ -1,5 +1,5 @@
 'use client'
-import React, { ChangeEvent, FC, useEffect, useState } from 'react'
+import React, { ChangeEvent, FC, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -45,9 +45,10 @@ interface Expense {
 }
 
 interface ExpenseProps {
-    expenses: Expense[];
+    expenses: Expense[]
 }
 const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
+
 
     const date = new Date();
 
@@ -66,9 +67,14 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
     const [isEdit, setIsEdit] = useState<Boolean>(false)
     const [tempDataStore, setTempDataStore] = useState<Array<Expense>>([])
 
-    const [spendingData, setSpendingData] = useState(expenses);
+    const [spendingData, setSpendingData] = useState(expenses || []);
 
     const theme = useTheme();
+    // const [isMobile, setIsMobile] = useState(false);
+
+    // useEffect(() => {
+    //     setIsMobile(useMediaQuery(theme.breakpoints.down('md')));
+    // }, []);
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
     // Handle editing the amount for each category
@@ -140,8 +146,8 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
         setLoading(true)
         try {
             const data = await getSummaryOfSpendingSpecificMonth(year, month)
-            console.log("Spending Data",data);
-            
+            // console.log("Spending Data",data);
+
         } catch (error) {
             console.error('Error fetching user data:', error);
             if (error instanceof AxiosError) {
@@ -166,9 +172,9 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
         return null;
     };
 
-    useEffect(()=>{
+    useEffect(() => {
         getSummaryMonthly(filteredDate.year!, filteredDate.month!)
-    },[])
+    }, [])
 
     // useEffect(() => {
     //     if (!open) {
@@ -181,7 +187,6 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
             <Loading />
         )
     }
-
 
     return (
         <Box sx={{ width: '100%', display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", }}>
@@ -339,7 +344,7 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
 
                                         return dayData.categories.length > 0 ?
                                             (
-                                                <>
+                                                <React.Fragment key={dayData.day}>
                                                     {
                                                         dayData.categories.map((category, categoryIndex) => {
                                                             return (
@@ -439,11 +444,11 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                                                             )
                                                         })
                                                     }
-                                                </>
+                                                </React.Fragment>
                                             ) :
                                             // days Which don't have data
                                             (
-                                                <>
+                                                <React.Fragment key={dayData.day}>
                                                     <TableRow key={`${dayData.day}`} sx={{
                                                         backgroundColor: dayIndex % 2 === 0 ? 'grey.100' : 'white',
                                                     }}>
@@ -486,7 +491,7 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                                                                     (
                                                                         <>
                                                                             <IconButton
-                                                                                 disabled={(isEdit && selectedToEditDay !== dayData.day)}
+                                                                                disabled={(isEdit && selectedToEditDay !== dayData.day)}
                                                                                 onClick={() => {
                                                                                     setOpen(true)
                                                                                     setSelectedToEditDay(dayData.day)
@@ -516,7 +521,7 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                                                             }
                                                         </TableCell>
                                                     </TableRow>
-                                                </>
+                                                </React.Fragment>
                                             )
                                     })
                                 }
@@ -525,7 +530,7 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                     </TableContainer>
                 )}
             </Box>
-            <ExpenseTableModal open={open} setOpen={setOpen} filteredDate={filteredDate} selectedToEditDay={selectedToEditDay} sort={sortOrder} handleGetExpense={handleGetExpense}/>
+            <ExpenseTableModal open={open} setOpen={setOpen} filteredDate={filteredDate} selectedToEditDay={selectedToEditDay} sort={sortOrder} handleGetExpense={handleGetExpense} />
         </Box>
     )
 }

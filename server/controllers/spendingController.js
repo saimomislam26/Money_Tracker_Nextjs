@@ -106,7 +106,8 @@ module.exports.getAllSpending = async (req, res) => {
                 // If the day is in the database, return its data
                 const totalSpending = dayData.categories.reduce((sum, cat) => sum + cat.amount, 0);
                 return {
-                    day: currentDay,
+                    // day: `${currentDay}/${month}/${year}`,
+                    day:currentDay,
                     categories: dayData.categories.map(cat => ({
                         _id: cat.category._id,
                         category: cat.category.name,
@@ -118,7 +119,8 @@ module.exports.getAllSpending = async (req, res) => {
             } else {
                 // If the day is not in the database, return an empty categories array
                 return {
-                    day: currentDay,
+                    // day: `${currentDay}/${month}/${year}`,
+                    day:currentDay,
                     categories: [],
                     totalSpending: 0,
                     totalCategory: 0

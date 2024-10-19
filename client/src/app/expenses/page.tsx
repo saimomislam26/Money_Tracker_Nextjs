@@ -20,7 +20,10 @@ const SpendingTable = async () => {
   }
 
   return (
-    <ExpenseTable expenses={expenses} />
+    <div >
+
+      <ExpenseTable expenses={expenses} />
+    </div>
   );
 };
 

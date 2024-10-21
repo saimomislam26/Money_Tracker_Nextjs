@@ -1,7 +1,7 @@
 'use client'
 import { filterSelectedCategory, setAllCategories, setAllCategoriesAfterDelete, setInitialCategoriesFetch, setSelectedCategory } from '@/redux/slices/categorySlice';
 import { RootState } from '@/redux/store/store';
-import { Box, Button, Chip, Fade, Modal, Stack, TextField, Typography, Backdrop } from '@mui/material'
+import { Box, Button, Chip, Fade, Modal, Stack, TextField, Typography, Backdrop, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import React, { FC, useEffect, useState } from 'react'
@@ -36,11 +36,14 @@ interface CategoryChipProps {
 }
 
 const CategoryChip: FC<CategoryChipProps> = ({ categories }) => {
+    // console.log("After render client side",{categories});
+    
 
     const router = useRouter()
 
     const [inputValue, setInputValue] = useState<string>("");
     const [tempDeleteCategoryId, setTempDeleteCategoryId] = useState<string>("")
+    const [categoryType, setCategoryType] = useState<string>("general")
 
     // For Add Category Modal
     const [open, setOpen] = useState(false);
@@ -74,8 +77,24 @@ const CategoryChip: FC<CategoryChipProps> = ({ categories }) => {
     }
 
     const createNewCategory = async () => {
+        let date
+        let month
+        let year
         try {
-            const data = await createCategory({ name: inputValue })
+            if (categoryType === 'monthly') {
+
+                date = new Date();
+
+                // Get the current month (0-11, so we add 1 to make it 1-12)
+                month = date.getMonth() + 1;
+
+                // Get the current year
+                year = date.getFullYear();
+            } else {
+                month = null
+                year = null
+            }
+            const data = await createCategory({ name: inputValue, year, month })
             dispatch(setAllCategories(data.saveCategory))
         } catch (error) {
             console.error('Error fetching user data:', error);
@@ -120,7 +139,7 @@ const CategoryChip: FC<CategoryChipProps> = ({ categories }) => {
 
 
     return (
-        <div>
+        <div suppressHydrationWarning={true}>
             <Stack direction="row" flexWrap="wrap" spacing={1} gap={1}>
                 {allCategories.length > 0 && allCategories.map((val: { _id: string, name: string }) => {
                     return (
@@ -156,6 +175,23 @@ const CategoryChip: FC<CategoryChipProps> = ({ categories }) => {
                         <Typography variant="h6" component="h2" gutterBottom>
                             Create New Category
                         </Typography>
+
+                        <FormControl fullWidth>
+                            <InputLabel id="demo-select-small-label">Category Selection</InputLabel>
+                            <Select
+                                defaultValue='general'
+                                labelId="demo-select-small-label"
+                                id="demo-select-small"
+                                value={categoryType}
+                                label="Selection"
+                                onChange={(e: SelectChangeEvent<string>) => {
+                                    setCategoryType(e.target.value)
+                                }}
+                            >
+                                <MenuItem value={'general'} >General Category</MenuItem>
+                                <MenuItem value={'monthly'}>Month Specific Category</MenuItem>
+                            </Select>
+                        </FormControl>
 
                         {/* Input field */}
                         <TextField

@@ -4,6 +4,8 @@ import { toast } from "react-toastify";
 
 export const createCategory = async (categoryName: {
     name: string,
+    year: number | null
+    month: number | null
   }) => {
     try {
       const response = await apiCall({
@@ -41,10 +43,14 @@ export const createCategory = async (categoryName: {
     }
   };
 
-  export const getCategory = async () => {
+  export const getCategory = async (date:{
+    month:number | null
+    year: number | null
+  }) => {
     try {
+
       const response = await apiCall({
-        url: '/category/get-all-category',
+        url: `/category/get-all-category?year=${date.year}&month=${date.month}`,
         method: 'GET',
         withCredentials: true
       });

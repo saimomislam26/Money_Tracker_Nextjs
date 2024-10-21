@@ -1,26 +1,17 @@
 import axios from "axios";
 import { cookies } from "next/headers";
 
-export const getAllCategory = async () => {
+export const getUserInfo = async () => {
     try {
         const cookieStore = cookies();
         const token = cookieStore.get('token');
-        // console.log({token});
-        const date = new Date()
-        const year = date.getFullYear()
-        const month = date.getMonth() + 1
         
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/category/get-all-category?year=${year}&month=${month}`, {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/get-user-info`, {
             headers: {
-                // 'Cache-Control': 'no-cache, no-store, must-revalidate',
-                // 'Pragma': 'no-cache',
-                // 'Expires': '0',
                 Authorization: `Bearer ${token?.value}`
             },
         })
-        // console.log(response.data);
-        
-        //   toast.success(response.data?.message);
+
         return response.data;
 
     } catch (error) {

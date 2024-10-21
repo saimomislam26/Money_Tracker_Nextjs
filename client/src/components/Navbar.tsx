@@ -52,6 +52,9 @@ const Navbar = () => {
             dispatch(clearCategoryInfo())
             router.push('/login')
         }
+        if(value === 'Profile'){
+            router.push('/profile')
+        }
         setAnchorElUser(null);
     };
 

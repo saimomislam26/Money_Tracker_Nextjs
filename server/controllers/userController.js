@@ -35,9 +35,9 @@ module.exports.loginUser = async (req, res) => {
         const userTokenData = {
             "_id": user._id,
             "email": user.email,
-            "firstName":user.firstName,
-            "lastName":user.lastName,
-            "income":user.income
+            "firstName": user.firstName,
+            "lastName": user.lastName,
+            "income": user.income
         };
 
         const { firstName, lastName } = user
@@ -78,10 +78,15 @@ module.exports.updateUser = async (req, res) => {
 
         if (!user) return res.status(404).json({ message: "User not found" })
 
-        var passowrd = req.body.password
-        if (passowrd) {
-            password = await hashPasswordGenarator(passowrd)
-            req.body.password = password
+        var currentPassword = req.body.currentPassword
+        var newPassword = req.body.password
+
+        // If password update
+        if (currentPassword && newPassword) {
+            let isValid = await verifyHash(currentPassword, user.password)
+            if (!isValid) return res.status(400).json({ message: "Current Password Does not match" })
+            newPassword = await hashPasswordGenarator(newPassword)
+            req.body.password = newPassword
         }
 
         const updatedUser = await User.findByIdAndUpdate(userId, { ...req.body }, { new: true })

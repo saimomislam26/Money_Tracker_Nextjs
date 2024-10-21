@@ -2,15 +2,14 @@
 import { configureStore } from '@reduxjs/toolkit';
 import categoryReducer from '@/redux/slices/categorySlice';
 import userReducer from '@/redux/slices/userSlice'
-import authMiddleware from '../middleware/authMiddleware';
+import { loadUserMiddleware } from './middleware/loadUserMiddleware';
 
 export const store = configureStore({
   reducer: {
-    category:categoryReducer,
-    user:userReducer
+    category: categoryReducer,
+    user: userReducer
   },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(authMiddleware),
+  // middleware: getDefaultMiddleware => getDefaultMiddleware().concat(loadUserMiddleware)
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

@@ -6,6 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import Providers from "@/components/Providers";
 import NavbarHandler from "@/components/NavbarHandler";
+import FetchUserInfo from "@/utils/fetchThunkUserInfo";
 
 
 const geistSans = localFont({
@@ -36,6 +37,8 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
+          {/* For every refresh call the thunk function and it needs to be wrapped */}
+          <FetchUserInfo />
           <NavbarHandler />
           {children}
           <ToastContainer

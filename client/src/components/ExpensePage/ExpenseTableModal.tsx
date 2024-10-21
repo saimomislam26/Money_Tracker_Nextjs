@@ -49,7 +49,7 @@ const ExpenseTableModal: FC<ExpenseTableModalProps> = ({ open, setOpen, filtered
 
     const getAllCategory = async () => {
         try {
-            const data = await getCategory()
+            const data = await getCategory(filteredDate)
             setAllCategories(data)
             // console.log({ data });
 
@@ -67,7 +67,7 @@ const ExpenseTableModal: FC<ExpenseTableModalProps> = ({ open, setOpen, filtered
 
     useEffect(() => {
         if (open === true) {
-            console.log(open)
+            // console.log(open)
             getAllCategory()
         }
     }, [open])

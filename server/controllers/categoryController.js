@@ -10,16 +10,21 @@ module.exports.createCategory = async (req, res) => {
         const errors = validationMessages(validationResult(req).mapped())
 
         if (isErrorFounds(errors)) return res.status(400).json({ "message": "Validation Error", errors })
-        const { name } = req.body
 
+        const { name, year, month } = req.body;
         const userId = new mongoose.Types.ObjectId(req.userId)
 
         const user = await User.findById({ _id: userId })
         if (!user) return res.status(404).json({ message: "User not found" })
 
-        const saveCategory = await new Category({ user: userId, name }).save()
+        const saveCategory = await new Category({
+            user: userId,
+            name,
+            year: year || null,  // null if not provided (general category)
+            month: month || null  // null if not provided (general category)
+        }).save();
 
-        return res.status(200).json({ saveCategory:{_id:saveCategory._id, name:saveCategory.name}, message: "Created Successfully" })
+        return res.status(200).json({ saveCategory: { _id: saveCategory._id, name: saveCategory.name }, message: "Created Successfully" })
     } catch (err) {
         console.log(err);
         return res.status(500).json({ message: "Something went wrong" })
@@ -52,35 +57,46 @@ module.exports.updateCategory = async (req, res) => {
 
 module.exports.getAllCategory = async (req, res) => {
     try {
-        const userId = req.userId
+        const userId = req.userId;
+        const { year, month } = req.query;  // Get year and month from query parameters
 
-        const category = await Category.find({ user: userId }).select('name')
+        // Find general categories (year and month are null)
+        const generalCategories = await Category.find({ user: userId, year: null, month: null }).select('name');
 
-        if (!category) return res.status(404).json({ message: "Category not found" })
+        // Find monthly categories if year and month are provided
+        let monthlyCategories = [];
+        if (year && month) {
+            monthlyCategories = await Category.find({
+                user: userId,
+                year: Number(year),  // Ensure year and month are numbers
+                month: Number(month)
+            }).select('name');
+        }
 
-        return res.status(200).json(category)
+        const categories = [...generalCategories, ...monthlyCategories];  // Combine both general and monthly categories
+
+        if (!categories.length) return res.status(404).json({ message: "Category not found" });
+
+        return res.status(200).json(categories);
     } catch (error) {
         console.log(error);
-
-        return res.status(500).json({ "message": "Something went wrong" })
+        return res.status(500).json({ message: "Something went wrong" });
     }
-
-
 }
 
 module.exports.getSearchCategory = async (req, res) => {
 
-    const userId =new mongoose.Types.ObjectId(req.userId);
+    const userId = new mongoose.Types.ObjectId(req.userId);
     const { searchingCategory } = req.query;
 
-    if(!searchingCategory) return res.status(400).json({message:"Searching query is empty"})
+    if (!searchingCategory) return res.status(400).json({ message: "Searching query is empty" })
 
     try {
         // Use regex for partial matching, case-insensitive
         const regex = new RegExp(searchingCategory, 'i');
 
-        console.log({searchingCategory});
-        
+        console.log({ searchingCategory });
+
         // Find categories that match the query for the specific user
         const categories = await Category.find({
             user: userId,
@@ -97,8 +113,8 @@ module.exports.getSearchCategory = async (req, res) => {
     }
 }
 
-module.exports.deleteCategory = async(req,res)=>{
-    try{
+module.exports.deleteCategory = async (req, res) => {
+    try {
         const userId = req.userId
         const categoryId = new mongoose.Types.ObjectId(req.params.id)
 
@@ -107,11 +123,11 @@ module.exports.deleteCategory = async(req,res)=>{
         if (!category) return res.status(404).json({ message: "Category not found" })
 
         const deletedCategory = await Category.findByIdAndDelete(categoryId)
-        
-        const afterDeletedAllCategory = await Category.find({user:userId}).select('name')
 
-        return res.status(200).json({message:"Deleted Successfully", afterDeletedAllCategory})
-    }catch(error){
+        const afterDeletedAllCategory = await Category.find({ user: userId }).select('name')
+
+        return res.status(200).json({ message: "Deleted Successfully", afterDeletedAllCategory })
+    } catch (error) {
         console.log(error.message);
         res.status(500).json({ message: "Something Went Wrong" });
     }

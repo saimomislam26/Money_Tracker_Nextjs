@@ -200,15 +200,15 @@ module.exports.updateSpending = async (req, res) => {
 module.exports.getSummaryOfSpendingSpecificMonth = async (req, res) => {
     const { year, month } = req.params
     const userId = req.userId;
-    console.log(year, month, userId);
+    // console.log(year, month, userId);
     
     try {
         const summary = await Spending.aggregate([
             {
                 $match: {
                     user: new mongoose.Types.ObjectId(userId),
-                    year: year,
-                    month: month
+                    year: Number(year),
+                    month: Number(month)
                 }
             },
             { $unwind: '$days' },
@@ -241,7 +241,7 @@ module.exports.getSummaryOfSpendingSpecificMonth = async (req, res) => {
                 }
             }
         ]);
-        console.log({summary});
+        // console.log({summary});
         
 
         return res.status(200).send({ message: "Summaery Get Successfully", summary: summary.length > 0 ? summary[0] : { categories: [], totalMonthlyAmount: 0 } })

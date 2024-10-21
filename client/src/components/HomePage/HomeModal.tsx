@@ -1,7 +1,6 @@
 'use client'
 
 import { RootState } from '@/redux/store/store';
-import { loadUserFromCookies } from '@/utils/auth';
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
@@ -29,6 +28,8 @@ const HomeModal = () => {
 const router = useRouter()
 
   const income = useSelector((state: RootState) => state.user.income)
+  // console.log({income});
+  
 
   const dispatch = useDispatch();
 

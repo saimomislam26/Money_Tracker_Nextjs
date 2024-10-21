@@ -2,7 +2,6 @@ import { apiCall } from '@/utils/apiClient';
 import axios, { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 
-
 export const registerUser = async (userData: {
   firstName: string;
   lastName: string;
@@ -80,9 +79,10 @@ export const loginUser = async (userData: {
 
 export const updateUser = async (userData: {
   password?: string,
-  income?: number,
+  income?: number | null,
   firstName?: string,
-  lastName?: string
+  lastName?: string,
+  email?:string
 }) => {
   try {
     const response = await apiCall({

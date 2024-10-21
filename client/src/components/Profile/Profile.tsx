@@ -8,6 +8,10 @@ import { setMonthlyIncome, updateUser } from '@/lib/api';
 import { setUserInfo } from '@/redux/slices/userSlice';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
+import PasswordIcon from '@mui/icons-material/Password';
+import LockIcon from '@mui/icons-material/Lock';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import InfoIcon from '@mui/icons-material/Info';
 
 import InfoIcon from '@mui/icons-material/Info';
 

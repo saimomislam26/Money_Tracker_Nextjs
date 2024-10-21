@@ -117,10 +117,8 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
 
     const [spendingData, setSpendingData] = useState(expenses);
     const income = useSelector((state: RootState) => state.user.income)
-
-    console.log({ income });
-
-
+    const currentMonthIncome = useSelector((state: RootState) => state.user.currentMonthIncome)
+    
     const [summaryCategories, setSummaryCategories] = useState<Array<SummaryCategory>>([])
     const [totalAmountExpenseSummary, setTotalAmountExpenseSummary] = useState<number>(0)
 

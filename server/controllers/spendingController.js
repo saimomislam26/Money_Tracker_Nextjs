@@ -107,7 +107,7 @@ module.exports.getAllSpending = async (req, res) => {
                 const totalSpending = dayData.categories.reduce((sum, cat) => sum + cat.amount, 0);
                 return {
                     // day: `${currentDay}/${month}/${year}`,
-                    day:currentDay,
+                    day: currentDay,
                     categories: dayData.categories.map(cat => ({
                         _id: cat.category._id,
                         category: cat.category.name,
@@ -120,7 +120,7 @@ module.exports.getAllSpending = async (req, res) => {
                 // If the day is not in the database, return an empty categories array
                 return {
                     // day: `${currentDay}/${month}/${year}`,
-                    day:currentDay,
+                    day: currentDay,
                     categories: [],
                     totalSpending: 0,
                     totalCategory: 0
@@ -200,8 +200,7 @@ module.exports.updateSpending = async (req, res) => {
 module.exports.getSummaryOfSpendingSpecificMonth = async (req, res) => {
     const { year, month } = req.params
     const userId = req.userId;
-    // console.log(year, month, userId);
-    
+
     try {
         const summary = await Spending.aggregate([
             {
@@ -241,8 +240,6 @@ module.exports.getSummaryOfSpendingSpecificMonth = async (req, res) => {
                 }
             }
         ]);
-        // console.log({summary});
-        
 
         return res.status(200).send({ message: "Summaery Get Successfully", summary: summary.length > 0 ? summary[0] : { categories: [], totalMonthlyAmount: 0 } })
     } catch (error) {

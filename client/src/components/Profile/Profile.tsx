@@ -4,16 +4,21 @@ import { Avatar, Box, Button, Card, CardContent, Divider, Grid, Typography, List
 import { RootState } from '@/redux/store/store';
 import { useDispatch, useSelector } from 'react-redux';
 import Loading from '@/app/loading';
-import { updateUser } from '@/lib/api';
+import { setMonthlyIncome, updateUser } from '@/lib/api';
 import { setUserInfo } from '@/redux/slices/userSlice';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
+import PasswordIcon from '@mui/icons-material/Password';
+import LockIcon from '@mui/icons-material/Lock';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import InfoIcon from '@mui/icons-material/Info';
 
 type UserDataState = {
     income?: number | null,
     firstName?: string,
     lastName?: string,
-    email?: string
+    email?: string,
+    currentMonthIncome?: number | null
 }
 
 type Password = {
@@ -30,10 +35,17 @@ const Profile = () => {
     // {firstName:"",lastName:"",email:"",income:0}
     const [password, setPassword] = useState<Password>({ currentPassword: "", password: "" })
     const [loading, setLoading] = useState<boolean>(false)
+    const [currentMonthIncome, setCurrentMonthIncome] = useState<Number | string>(0)
 
     const router = useRouter()
 
     const dispatch = useDispatch()
+
+    const now = new Date();
+    let month: string | number = String(now.getUTCMonth() + 1).padStart(2, '0');
+    month = Number(month)
+    const year = Number(now.getUTCFullYear());
+    const currentDate = `${year}-${month}`;
 
 
     let name
@@ -86,6 +98,24 @@ const Profile = () => {
         }
     }
 
+    const setIncomeSpecificMonth = async () => {
+        setLoading(true)
+        try {
+            const data = await setMonthlyIncome({ year, month, income: Number(currentMonthIncome) })
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+            if (error instanceof AxiosError) {
+                if (error.response?.status === 401) {
+                    router.push('/login');
+                }
+            } else {
+                console.error('An unexpected error occurred:', error);
+            }
+        } finally {
+            setLoading(false)
+        }
+    }
+
     const [errors, setErrors] = useState({
         currentPassword: '',
         newPassword: ''
@@ -111,10 +141,10 @@ const Profile = () => {
         return valid;
     };
 
-
     useEffect(() => {
         if (userInfo.status === 'succeeded') {
             setUserData(userInfo)
+            userInfo.currentMonthIncome === null ? setCurrentMonthIncome(0) : setCurrentMonthIncome(userInfo.currentMonthIncome)
         }
     }, [userInfo])
 
@@ -124,7 +154,7 @@ const Profile = () => {
         )
     }
     return (
-        <Box sx={{ backgroundColor: '#f7f7ff', mt: 2 }}>
+        <Box sx={{ mt: 3, height: "100%" }}>
             <Grid container spacing={2}>
                 <Grid item xs={12} md={4}>
                     <Card sx={{ boxShadow: '0 2px 6px 0 rgb(218 218 253 / 65%), 0 2px 6px 0 rgb(206 206 238 / 54%)' }}>
@@ -141,23 +171,12 @@ const Profile = () => {
 
                             </Box>
                             <Divider sx={{ my: 2 }} />
-                            {/* <List>
-                <ListItem>
-                  <ListItemText primary="Website" secondary="https://bootdey.com" />
-                </ListItem>
-                <ListItem>
-                  <ListItemText primary="Github" secondary="bootdey" />
-                </ListItem>
-                <ListItem>
-                  <ListItemText primary="Twitter" secondary="@bootdey" />
-                </ListItem>
-                <ListItem>
-                  <ListItemText primary="Instagram" secondary="bootdey" />
-                </ListItem>
-                <ListItem>
-                  <ListItemText primary="Facebook" secondary="bootdey" />
-                </ListItem>
-              </List> */}
+                            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                                <Box sx={{ width: "50%", display: "flex", justifyContent: "center" }}>
+                                    <LockIcon titleAccess='Change Password' sx={{ cursor: "pointer", marginRight: "5px", color: "#9B7EBD" }} />
+                                    <AttachMoneyIcon titleAccess='Update Income Monthly' sx={{ cursor: "pointer", color: "#9B7EBD" }} />
+                                </Box>
+                            </Box>
                         </CardContent>
                     </Card>
                 </Grid>
@@ -238,7 +257,7 @@ const Profile = () => {
                             </Box>
                         </CardContent>
                     </Card>
-{/* Password Card */}
+                    {/* Password Card */}
                     <Card sx={{ mt: 3, boxShadow: '0 2px 6px 0 rgb(218 218 253 / 65%), 0 2px 6px 0 rgb(206 206 238 / 54%)' }}>
                         <CardContent>
                             {/* Current Password */}
@@ -254,7 +273,7 @@ const Profile = () => {
                                         name='currentPassword'
                                         value={password.currentPassword}
                                         onChange={(e) => { setPassword({ ...password, currentPassword: e.target.value }) }}
-                                        error={!!errors.currentPassword} 
+                                        error={!!errors.currentPassword}
                                         helperText={errors.currentPassword}
                                     />
                                 </Grid>
@@ -282,6 +301,42 @@ const Profile = () => {
 
                             <Box sx={{ textAlign: 'right', mt: 3 }}>
                                 <Button variant="contained" onClick={updatePassword}>Update Password</Button>
+                            </Box>
+                        </CardContent>
+                    </Card>
+
+                    {/* Update monthly base income */}
+                    <Card sx={{ mt: 3, boxShadow: '0 2px 6px 0 rgb(218 218 253 / 65%), 0 2px 6px 0 rgb(206 206 238 / 54%)' }}>
+                        <CardContent>
+                            <Typography sx={{ marginBottom: "10px" }}> Date: {currentDate}</Typography>
+                            <Box sx={{ width: "100%", marginBottom: "10px", display: "flex", alignItems: "center" }}>
+                                <InfoIcon />
+                                <Typography sx={{ marginLeft: "10px", color: "red" }}> If your this month income is different from your general income you can set your this month income specifically. All the calculation for this month will be based on given amount</Typography>
+                            </Box>
+                            <Grid container spacing={2}>
+                                <Grid item xs={12} sm={3}>
+                                    <Typography variant="subtitle1">Month Specific Income</Typography>
+                                </Grid>
+                                <Grid item xs={12} sm={9}>
+                                    <TextField
+                                        fullWidth
+                                        type="text"
+                                        className="form-control"
+                                        name='currentPassword'
+                                        defaultValue={userData?.currentMonthIncome || 0}
+                                        value={currentMonthIncome}
+                                        onChange={(e) => {
+                                            const inputValue = e.target.value.replace(/[^0-9]/g, '');
+                                            setCurrentMonthIncome(inputValue ? Number(inputValue) : '');
+                                        }}
+                                    // error={!!currentMonthIncome}
+                                    // helperText={currentMonthIncome==='' && "Income is required"}
+                                    />
+                                </Grid>
+                            </Grid>
+
+                            <Box sx={{ textAlign: 'right', mt: 3 }}>
+                                <Button variant="contained" onClick={setIncomeSpecificMonth} disabled={currentMonthIncome === '' || currentMonthIncome === 0}>Set Income</Button>
                             </Box>
                         </CardContent>
                     </Card>

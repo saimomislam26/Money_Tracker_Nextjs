@@ -67,6 +67,7 @@ module.exports.loginUser = async (req, res) => {
 
 module.exports.updateUser = async (req, res) => {
     try {
+
         const errors = validationMessages(validationResult(req).mapped())
 
         if (isErrorFounds(errors)) return res.status(400).json({ "message": "Validation Error", errors })
@@ -99,15 +100,70 @@ module.exports.updateUser = async (req, res) => {
     }
 }
 
+module.exports.setMonthlyIncome = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const { year, month, income } = req.body;
+
+        const user = await User.findById(userId).select('income monthlyIncomes');
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        const existingMonthlyIncome = user.monthlyIncomes.find(m => m.year === Number(year) && m.month === Number(month));
+
+        if (existingMonthlyIncome) {
+            // Update existing monthly income
+            existingMonthlyIncome.income = income;
+        } else {
+            // Add new monthly income
+            user.monthlyIncomes.push({
+                year,
+                month,
+                income,
+            });
+        }
+        await user.save();
+        return res.status(200).json({ message: "Income updated successfully" });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: "Something went wrong" });
+    }
+
+}
+
 module.exports.getUserInfo = async (req, res) => {
     try {
         const userId = req.userId
+        const { year, month } = req.query;
 
-        const user = await User.findById(userId).select('firstName lastName email income')
+        let user = await User.findById(userId).select('firstName lastName email income monthlyIncomes')
 
         if (!user) return res.status(404).json({ message: "User not found" })
 
-        return res.status(200).json(user)
+        let incomeDetails;
+        if (year && month) {
+            const monthlyIncome = user.monthlyIncomes.find(m => m.year === Number(year) && m.month === Number(month));
+
+            if (monthlyIncome) {
+                // Return the income for the specified month, including external sources
+                incomeDetails = {
+                    income: monthlyIncome.income
+                };
+            } else {
+                // Return general income if no specific monthly income is found
+                incomeDetails = { income: null };
+            }
+        } else {
+            // If no year/month provided, return general income
+            incomeDetails = { income: user.income };
+        }
+
+        // Convert Mongoose document to a plain object
+        const userObj = user.toObject();
+        
+        // Add the custom field
+        userObj.currentMonthIncome = incomeDetails.income;
+
+        return res.status(200).json(userObj)
     } catch (error) {
         console.log(error);
 

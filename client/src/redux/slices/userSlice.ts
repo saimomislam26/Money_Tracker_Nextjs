@@ -21,6 +21,7 @@ interface UserState {
     lastName: string
     email: string
     income: number | null,
+    currentMonthIncome: number | null,
     status?: 'idle' | 'loading' | 'succeeded' | 'failed';
     error?: string | null;
 }
@@ -31,6 +32,7 @@ const initialState: UserState = {
     lastName: "",
     email: "",
     income: 0,
+    currentMonthIncome: null,
     status: 'idle',
     error: null,
 };
@@ -43,6 +45,7 @@ export const userSlice = createSlice({
             state._id = action.payload._id;
             state.email = action.payload.email;
             state.income = action.payload.income;
+            state.currentMonthIncome = action.payload.currentMonthIncome;
             state.firstName = action.payload.firstName;
             state.lastName = action.payload.lastName
         },
@@ -50,6 +53,7 @@ export const userSlice = createSlice({
             state._id = null;
             state.email = "";
             state.income = 0;
+            state.currentMonthIncome = null;
             state.firstName = "";
             state.lastName = ""
         }
@@ -64,6 +68,7 @@ export const userSlice = createSlice({
             state._id = action.payload._id;
             state.email = action.payload.email;
             state.income = action.payload.income;
+            state.currentMonthIncome = action.payload.currentMonthIncome;
             state.firstName = action.payload.firstName;
             state.lastName = action.payload.lastName;
           })

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const { validationResult } = require('express-validator')
 const Spending = require('../models/spendingModel')
+const User = require('../models/userModel')
 const { validationMessages, isErrorFounds } = require('../utils/errorMessageHelper')
 
 module.exports.createSpending = async (req, res) => {
@@ -107,7 +108,7 @@ module.exports.getAllSpending = async (req, res) => {
                 const totalSpending = dayData.categories.reduce((sum, cat) => sum + cat.amount, 0);
                 return {
                     // day: `${currentDay}/${month}/${year}`,
-                    day:currentDay,
+                    day: currentDay,
                     categories: dayData.categories.map(cat => ({
                         _id: cat.category._id,
                         category: cat.category.name,
@@ -120,7 +121,7 @@ module.exports.getAllSpending = async (req, res) => {
                 // If the day is not in the database, return an empty categories array
                 return {
                     // day: `${currentDay}/${month}/${year}`,
-                    day:currentDay,
+                    day: currentDay,
                     categories: [],
                     totalSpending: 0,
                     totalCategory: 0
@@ -200,9 +201,31 @@ module.exports.updateSpending = async (req, res) => {
 module.exports.getSummaryOfSpendingSpecificMonth = async (req, res) => {
     const { year, month } = req.params
     const userId = req.userId;
-    // console.log(year, month, userId);
-    
+
     try {
+        let user = await User.findById(userId).select('firstName lastName email income monthlyIncomes')
+
+        if (!user) return res.status(404).json({ message: "User not found" })
+
+        let incomeDetails;
+        if (year && month) {
+            const monthlyIncome = user.monthlyIncomes.find(m => m.year === Number(year) && m.month === Number(month));
+
+            if (monthlyIncome) {
+                // Return the income for the specified month, including external sources
+                incomeDetails = {
+                    income: monthlyIncome.income
+                };
+            } else {
+                // Return general income if no specific monthly income is found
+                incomeDetails = { income: user.income };
+            }
+        } else {
+            // If no year/month provided, return general income
+            incomeDetails = { income: user.income };
+        }
+
+
         const summary = await Spending.aggregate([
             {
                 $match: {
@@ -241,10 +264,8 @@ module.exports.getSummaryOfSpendingSpecificMonth = async (req, res) => {
                 }
             }
         ]);
-        // console.log({summary});
-        
 
-        return res.status(200).send({ message: "Summaery Get Successfully", summary: summary.length > 0 ? summary[0] : { categories: [], totalMonthlyAmount: 0 } })
+        return res.status(200).send({ message: "Summaery Get Successfully", summary: summary.length > 0 ? summary[0] : { categories: [], totalMonthlyAmount: 0 },incomeDetails })
     } catch (error) {
         console.error("Error fetching monthly summary:", error);
         throw error;

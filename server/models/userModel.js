@@ -26,7 +26,6 @@ const externalIncomeSchema = new mongoose.Schema({
       type: Number,
       required: true,
     },
-    externalIncomeSources: [externalIncomeSchema]
   }, { _id: false });
 
 const userSchema = new mongoose.Schema({

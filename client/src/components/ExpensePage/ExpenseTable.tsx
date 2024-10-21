@@ -116,13 +116,12 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
     const [tempDataStore, setTempDataStore] = useState<Array<Expense>>([])
 
     const [spendingData, setSpendingData] = useState(expenses);
-    const income = useSelector((state: RootState) => state.user.income)
-
-    console.log({ income });
-
-
+    // const income = useSelector((state: RootState) => state.user.income)
+    // const currentMonthIncome = useSelector((state: RootState) => state.user.currentMonthIncome)
+    
     const [summaryCategories, setSummaryCategories] = useState<Array<SummaryCategory>>([])
     const [totalAmountExpenseSummary, setTotalAmountExpenseSummary] = useState<number>(0)
+    const [income,setIncome] = useState<number>(0)
 
     const [expanded, setExpanded] = React.useState(false);
 
@@ -209,6 +208,7 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
             // console.log("Spending Data", data);
             setSummaryCategories(data?.summary.categories)
             setTotalAmountExpenseSummary(data?.summary?.totalMonthlyAmount)
+            setIncome(data?.incomeDetails?.income)
         } catch (error) {
             console.error('Error fetching user data:', error);
             if (error instanceof AxiosError) {

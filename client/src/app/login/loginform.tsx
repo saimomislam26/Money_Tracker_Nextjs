@@ -44,7 +44,7 @@ const Loginform = () => {
             router.push("/")
             const token = Cookies.get('token')
             const userInfo = decodeToken(token!)
-            console.log({userInfo});
+            // console.log({userInfo});
             
             dispatch(setUserInfo(userInfo!))
         } catch (error: any) {

@@ -36,7 +36,7 @@ const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [inputValue, setInputValue] = useState<number>(0);
   const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
+
   const handleClose = () => setOpen(false);
 
 

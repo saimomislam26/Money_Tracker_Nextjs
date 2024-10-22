@@ -29,9 +29,9 @@ const CategoryFieldAmount = () => {
 
     function getUTCDate() {
         const now = new Date();
-        const day = String(now.getUTCDate()).padStart(2, '0');
-        const month = String(now.getUTCMonth() + 1).padStart(2, '0'); // Months are zero-indexed
-        const year = String(now.getUTCFullYear());
+        const day = String(now.getDate()).padStart(2, '0'); // Local date
+        const month = String(now.getMonth() + 1).padStart(2, '0'); // Local month (January is 0)
+        const year = String(now.getFullYear()); // Local year
 
         return { day, month, year };
     }

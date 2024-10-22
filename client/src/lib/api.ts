@@ -98,7 +98,9 @@ export const setMonthlyIncome = async (info: {
       if (error.response) {
         // Server responded with a status other than 2xx
         console.error('Error response:', error.response.data);
-        toast.error(error.response?.data?.message)
+        if (error.response.status !== 401) {
+          toast.error(error.response?.data?.message);
+        }
         return error.response.data
       } else if (error.request) {
         // Request was made but no response was received
@@ -164,9 +166,9 @@ export const updateUser = async (userData: {
 
 export const getUserInfo = async () => {
   const now = new Date();
-  let month: string | number = String(now.getUTCMonth() + 1).padStart(2, '0');
+  let month: string | number = String(now.getMonth() + 1).padStart(2, '0');
   month = Number(month)
-  const year = Number(now.getUTCFullYear());
+  const year = Number(now.getFullYear());
   try {
     const response = await apiCall({
       url: `/user/get-user-info?year=${year}&month=${month}`,

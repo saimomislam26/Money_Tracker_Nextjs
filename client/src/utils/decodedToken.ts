@@ -8,7 +8,8 @@ interface UserInfo {
   email: string;
   income: number | null;
   iat: number,
-  exp: number
+  exp: number,
+  currentMonthIncome:number | null
 }
 
 export const decodeToken = (token: string): UserInfo | null => {

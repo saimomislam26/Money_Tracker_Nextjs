@@ -36,7 +36,7 @@ module.exports.tokenGeneration = (userData) => {
 
     const signOptions = {
         algorithm: "HS256",
-        expiresIn: '24h'
+        expiresIn: process.env.TOKEN_EXPIRES_TIME
     };
 
     const token = jwt.sign(userData, privateKey, signOptions);
@@ -53,7 +53,7 @@ module.exports.verifyToken = (token) => {
     try {
         const signOptions = {
             algorithm: "HS256",
-            expiresIn: '24h'
+            expiresIn: process.env.TOKEN_EXPIRES_TIME
         };
 
         const isVerified = jwt.verify(token, privateKey, signOptions);

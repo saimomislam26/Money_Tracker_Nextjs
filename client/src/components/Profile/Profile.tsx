@@ -13,7 +13,6 @@ import LockIcon from '@mui/icons-material/Lock';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import InfoIcon from '@mui/icons-material/Info';
 
-import InfoIcon from '@mui/icons-material/Info';
 
 type UserDataState = {
     income?: number | null,
@@ -45,9 +44,9 @@ const Profile = () => {
     const dispatch = useDispatch()
 
     const now = new Date();
-    let month: string | number = String(now.getUTCMonth() + 1).padStart(2, '0');
+    let month: string | number = String(now.getMonth() + 1).padStart(2, '0');
     month = Number(month)
-    const year = Number(now.getUTCFullYear());
+    const year = Number(now.getFullYear());
     const currentDate = `${year}-${month}`;
 
 
@@ -168,7 +167,7 @@ const Profile = () => {
                                     alt="Admin"
                                     sx={{ width: 110, height: 110, p: 1, bgcolor: 'primary.main', borderRadius: '50%' }}
                                 />
-                                <Typography variant="h6" sx={{ mt: 2, wordWrap:'break-word',width:"100%",textAlign:"center" }}>
+                                <Typography variant="h6" sx={{ mt: 2, wordWrap:'break-word',width:"100%",textAlign:"center" }} className='font-mono'>
                                     {userData && `${userData?.firstName} ${userData?.lastName}`}
                                 </Typography>
 

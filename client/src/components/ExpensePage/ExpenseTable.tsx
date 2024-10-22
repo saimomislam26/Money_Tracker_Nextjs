@@ -304,7 +304,7 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                         />
                         <CardContent>
                             <Box display="flex" justifyContent="space-between" sx={{ mb: 1 }}>
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography variant="body2" color="text.secondary" >
                                     Income:
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">
@@ -435,7 +435,10 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                                                                 size="small"
                                                                 value={category.amount}
                                                                 onChange={
-                                                                    (e) => handleAmountChange(dayIndex, categoryIndex, parseFloat(e.target.value))
+                                                                    (e) => {
+                                                                        const inputValue = e.target.value.replace(/[^0-9]/g, '');
+                                                                        handleAmountChange(dayIndex, categoryIndex, inputValue ? Number(inputValue) : 0)
+                                                                    }
                                                                 }
                                                                 inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                                                             /> :
@@ -496,9 +499,12 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                                                                                 size="small"
                                                                                 value={category.amount}
                                                                                 onChange={
-                                                                                    (e) => handleAmountChange(dayIndex, categoryIndex, parseFloat(e.target.value))
+                                                                                    (e) => {
+                                                                                        const inputValue = e.target.value.replace(/[^0-9]/g, '');
+                                                                                        handleAmountChange(dayIndex, categoryIndex, inputValue ? Number(inputValue) : 0)
+                                                                                    }
                                                                                 }
-                                                                                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                                                                                // inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                                                                             /> :
                                                                                 <Typography>{category.amount}</Typography>
                                                                         }

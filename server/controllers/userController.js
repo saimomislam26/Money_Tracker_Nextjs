@@ -41,8 +41,8 @@ module.exports.loginUser = async (req, res) => {
         };
 
         const { firstName, lastName } = user
-        const expirationDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString()
-        // new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString(); 
+        const expirationDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toString()
+        // new Date(Date.now() + 24 * 60 * 60 * 1000).toString(); 
         const token = tokenGeneration(userTokenData);
         // Secure; HttpOnly;
         const cookie = `token=${token};SameSite=None;Secure;Expires=${expirationDate}; Path=/;`

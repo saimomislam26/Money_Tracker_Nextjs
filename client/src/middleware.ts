@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 // List of protected routes
-const protectedRoutes = ['/'];
+const protectedRoutes = ['/','/profile','/expenses'];
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('token')?.value;
@@ -18,7 +18,6 @@ export function middleware(request: NextRequest) {
   }
 
   if(token && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/register')){
-    console.log("entered");
     return NextResponse.redirect(new URL('/', request.url));
   }
 
@@ -28,5 +27,5 @@ export function middleware(request: NextRequest) {
 
 // Specify which routes should use this middleware
 export const config = {
-  matcher: ['/', '/register', '/login',], // Add more protected routes if needed
+  matcher: ['/', '/register', '/login','/profile','/expenses'], // Add more protected routes if needed
 };

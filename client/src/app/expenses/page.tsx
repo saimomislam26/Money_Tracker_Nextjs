@@ -1,4 +1,11 @@
 import dynamic from 'next/dynamic';
+
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Expense Viewer',
+  description: 'See Your all expenses and summary here',
+};
 // For avoiding Hydration error
 // Only render in client side
 const ExpenseTable =  dynamic(()=> import('@/components/ExpensePage/ExpenseTable'), { ssr: false })

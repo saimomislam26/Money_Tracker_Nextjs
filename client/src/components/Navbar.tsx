@@ -22,6 +22,9 @@ import { clearUserInfo } from '@/redux/slices/userSlice';
 import { clearCategoryInfo } from '@/redux/slices/categorySlice';
 import Link from 'next/link';
 
+import logo from '@/images/logo.png'
+import Image from 'next/image';
+
 const pages = [{ page: "Home", navigation: "/" }, { page: "Expenses", navigation: "/expenses" }, { page: "Summary", navigation: "/summary" }];
 const settings = ['Profile', 'Logout'];
 
@@ -52,7 +55,7 @@ const Navbar = () => {
             dispatch(clearCategoryInfo())
             router.push('/login')
         }
-        if(value === 'Profile'){
+        if (value === 'Profile') {
             router.push('/profile')
         }
         setAnchorElUser(null);
@@ -81,24 +84,8 @@ const Navbar = () => {
         <AppBar position="static">
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
-                    <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
-                    <Typography
-                        variant="h6"
-                        noWrap
-                        component="a"
-                        href="/"
-                        sx={{
-                            mr: 2,
-                            display: { xs: 'none', md: 'flex' },
-                            fontFamily: 'monospace',
-                            fontWeight: 700,
-                            letterSpacing: '.3rem',
-                            color: 'inherit',
-                            textDecoration: 'none',
-                        }}
-                    >
-                        LOGO
-                    </Typography>
+
+                    <Image src={logo} alt="App Logo" width={100} height={100} className="hidden md:flex mr-1"/>
 
                     <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
                         <IconButton
@@ -135,24 +122,7 @@ const Navbar = () => {
                         </Menu>
                     </Box>
                     <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
-                    <Typography
-                        variant="h5"
-                        noWrap
-                        component="a"
-                        href="#app-bar-with-responsive-menu"
-                        sx={{
-                            mr: 2,
-                            display: { xs: 'flex', md: 'none' },
-                            flexGrow: 1,
-                            fontFamily: 'monospace',
-                            fontWeight: 700,
-                            letterSpacing: '.3rem',
-                            color: 'inherit',
-                            textDecoration: 'none',
-                        }}
-                    >
-                        LOGO
-                    </Typography>
+                    <Image src={logo} alt="App Logo" width={100} height={100} />
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                         {pages.map((page) => (
                             <Button

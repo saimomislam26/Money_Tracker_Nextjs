@@ -15,7 +15,6 @@ const CategoryFieldAmount = () => {
     const savedCategories = useSelector((state: RootState) => state.category.selectedCategory)
     const dispatch = useDispatch()
 
-
     const [loading, setLoading] = useState(false)
 
     const setAmountWithCategoryInfo = (categoryId: string, amount: number) => {

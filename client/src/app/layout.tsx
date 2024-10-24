@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Providers from "@/components/Providers";
 import NavbarHandler from "@/components/NavbarHandler";
 import FetchUserInfo from "@/utils/fetchThunkUserInfo";
+import ClientThemeProvider from "@/components/ClientThemeProvider";
 
 
 const geistSans = localFont({
@@ -36,8 +37,10 @@ export default function RootLayout({
       <body
         className={`font-mono antialiased`}
       >
-        <Providers>
-          {/* <ThemeProvider theme={theme}>
+        <ClientThemeProvider>
+
+          <Providers>
+            {/* <ThemeProvider theme={theme}>
             <CssBaseline /> */}
             {/* For every refresh call the thunk function and it needs to be wrapped */}
             <FetchUserInfo />
@@ -48,9 +51,9 @@ export default function RootLayout({
               autoClose={3000}
               closeOnClick
             />
-          {/* </ThemeProvider> */}
-        </Providers>
-
+            {/* </ThemeProvider> */}
+          </Providers>
+        </ClientThemeProvider>
       </body>
     </html>
   );

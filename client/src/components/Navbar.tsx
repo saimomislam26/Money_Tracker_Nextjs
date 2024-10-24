@@ -17,13 +17,14 @@ import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import ModeNightIcon from '@mui/icons-material/ModeNight';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { clearUserInfo } from '@/redux/slices/userSlice';
 import { clearCategoryInfo } from '@/redux/slices/categorySlice';
 import Link from 'next/link';
 
 import logo from '@/images/logo.png'
 import Image from 'next/image';
+import { RootState } from '@/redux/store/store';
 
 const pages = [{ page: "Home", navigation: "/" }, { page: "Expenses", navigation: "/expenses" }, { page: "Summary", navigation: "/summary" }];
 const settings = ['Profile', 'Logout'];
@@ -34,6 +35,8 @@ const Navbar = () => {
     const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
 
     const [isDarkMode, setIsDarkMode] = useState<boolean>(false)
+
+    const userName = useSelector((state: RootState) => state.user.firstName)
 
     const dispatch = useDispatch()
 
@@ -85,9 +88,10 @@ const Navbar = () => {
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
 
-                    <Image src={logo} alt="App Logo" width={100} height={100} className="hidden md:flex mr-1"/>
+                    <Image src={logo} alt="App Logo" width={80} height={80} className="hidden md:flex mr-1" />
 
-                    <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+                    {/* For Mobile View Hanburg icon */}
+                    <Box sx={{ flexGrow: 1, display: { sm: 'flex', md: 'none' } }}>
                         <IconButton
                             size="large"
                             aria-label="account of current user"
@@ -121,8 +125,10 @@ const Navbar = () => {
                             ))}
                         </Menu>
                     </Box>
-                    <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
-                    <Image src={logo} alt="App Logo" width={100} height={100} />
+                    {/* <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} /> */}
+                    {/* For mobile view icon */}
+
+
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                         {pages.map((page) => (
                             <Button
@@ -135,6 +141,11 @@ const Navbar = () => {
                             </Button>
                         ))}
                     </Box>
+                    <Box sx={{ width: "100%", display:{sm:"flex", md:"none"}, justifyContent:"center" }}className="xs:flex xs:justify-center xs:items-center md:hidden" >
+
+                        <Image src={logo} alt="App Logo" width={80} height={80} />
+                    </Box>
+                    <h6 className='mr-5'>{`Hi ${userName && userName}!`}</h6>
                     <Box sx={{ flexGrow: 0 }}>
 
                         <Tooltip title="Open settings">
@@ -164,12 +175,12 @@ const Navbar = () => {
                                 </MenuItem>
                             ))}
                         </Menu>
-                        <Tooltip title={isDarkMode ? "Light Mode" : "Dark Mode"}>
+                        {/* <Tooltip title={isDarkMode ? "Light Mode" : "Dark Mode"}>
                             {
                                 isDarkMode ? <WbSunnyIcon sx={{ ml: 3, cursor: "pointer" }} onClick={toggleDarkMode} /> : <ModeNightIcon sx={{ ml: 3, cursor: "pointer" }} onClick={toggleDarkMode} />
                             }
 
-                        </Tooltip>
+                        </Tooltip> */}
                     </Box>
                 </Toolbar>
             </Container>

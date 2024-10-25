@@ -164,6 +164,45 @@ export const updateUser = async (userData: {
   }
 };
 
+export const updateUserProfileImage = async (formData:FormData) => {
+  
+  try {
+    const response = await apiCall({
+      url: '/user/upload-profile-pic',
+      method: 'PUT',
+      data: formData,
+      withCredentials: true
+    });
+
+    toast.success(response.data?.message);
+    return response.data;
+
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      // Axios-specific error handling
+      if (error.response) {
+        console.error('Error response:', error.response);
+        if (error.response.status !== 401) {
+          toast.error(error.response?.data?.message);
+        }
+        // Instead of returning, throw the error to be caught in updateIncome
+        throw error;
+      } else if (error.request) {
+        console.error('Error request:', error.request);
+        toast.error('No response from server. Please try again later');
+        throw new Error('No response from server. Please try again later.');
+      } else {
+        console.error('Error message:', error.message);
+        toast.error(error.message);
+        throw new Error(error.message); // Throw custom error
+      }
+    } else {
+      console.error('Unexpected error:', error);
+      throw new Error('An unexpected error occurred.'); // Generic error thrown
+    }
+  }
+};
+
 export const getUserInfo = async () => {
   const now = new Date();
   let month: string | number = String(now.getMonth() + 1).padStart(2, '0');

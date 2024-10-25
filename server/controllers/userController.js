@@ -1,7 +1,11 @@
+const cloudinary = require('cloudinary')
+
 const { validationResult } = require('express-validator')
 const User = require('../models/userModel')
 const { validationMessages, isErrorFounds } = require('../utils/errorMessageHelper')
 const { hashPasswordGenarator, verifyHash, tokenGeneration } = require('../services/userServices')
+
+
 
 module.exports.createUser = async (req, res) => {
     const errors = validationMessages(validationResult(req).mapped())
@@ -37,7 +41,8 @@ module.exports.loginUser = async (req, res) => {
             "email": user.email,
             "firstName": user.firstName,
             "lastName": user.lastName,
-            "income": user.income
+            "income": user.income,
+            "profileImage": user?.profileImageUrl | null
         };
 
         const { firstName, lastName } = user
@@ -135,7 +140,7 @@ module.exports.getUserInfo = async (req, res) => {
         const userId = req.userId
         const { year, month } = req.query;
 
-        let user = await User.findById(userId).select('firstName lastName email income monthlyIncomes')
+        let user = await User.findById(userId).select('firstName lastName email income monthlyIncomes profileImageUrl')
 
         if (!user) return res.status(404).json({ message: "User not found" })
 
@@ -159,7 +164,9 @@ module.exports.getUserInfo = async (req, res) => {
 
         // Convert Mongoose document to a plain object
         const userObj = user.toObject();
+        console.log({userObj});
         
+
         // Add the custom field
         userObj.currentMonthIncome = incomeDetails.income;
 
@@ -170,5 +177,45 @@ module.exports.getUserInfo = async (req, res) => {
         return res.status(500).json({ "message": "Something went wrong" })
     }
 
+
+}
+
+module.exports.uploadProfileImage = async (req, res) => {
+    // upload.single("myFile")
+
+    console.log(req.file);
+    
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: "There is no file" })
+        }
+
+        try {
+            const userId = req.userId
+
+            const user = await User.findById(userId)
+            if (!user) return res.status(404).json({ message: "User not found" })
+
+            const cloudinaryUpload = await cloudinary.uploader.upload(req.file.path, {
+                folder: "Money Tracker User Profile",
+                resource_type: "auto"
+            })
+
+            const { secure_url } = cloudinaryUpload
+
+            const updatedUser = await User.findByIdAndUpdate(userId, {profileImageUrl: secure_url}, {new:true})
+
+            res.status(200).json({
+                profileImageUrl: secure_url
+            })
+
+        } catch (error) {
+            return res.status(400).json({ message: "Error from Cloudinary" })
+        }
+
+    } catch (error) {
+        // console.log(error?.message);
+        return res.status(500).json({ message: "Internal Server  Error" })
+    }
 
 }

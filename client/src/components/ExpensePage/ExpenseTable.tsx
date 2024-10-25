@@ -460,12 +460,12 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
                         <Table sx={{ minWidth: 650 }} aria-label="spending table">
                             <TableHead>
                                 <TableRow sx={{ backgroundColor: "#2176D2" }}>
-                                    <TableCell>Day</TableCell>
-                                    <TableCell>Categories</TableCell>
-                                    <TableCell>Amount</TableCell>
-                                    <TableCell>Total Category</TableCell>
-                                    <TableCell>Total Spending</TableCell>
-                                    <TableCell>Action</TableCell>
+                                    <TableCell sx={{color:"white"}}>Day</TableCell>
+                                    <TableCell sx={{color:"white"}}>Categories</TableCell>
+                                    <TableCell sx={{color:"white"}}>Amount</TableCell>
+                                    <TableCell sx={{color:"white"}}>Total Category</TableCell>
+                                    <TableCell sx={{color:"white"}}>Total Spending</TableCell>
+                                    <TableCell sx={{color:"white"}}>Action</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>

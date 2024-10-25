@@ -5,26 +5,26 @@ import { useEffect, useState } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
-    typography: {
-      fontFamily: 'Roboto Mono, monospace', // Override the default font for all text
-    },
-    components: {
-      MuiButton: {
-        styleOverrides: {
-          root: {
-            fontFamily: 'Roboto Mono, monospace',
-          },
-        },
-      },
-      MuiTypography: {
-        styleOverrides: {
-          root: {
-            fontFamily: 'Roboto Mono, monospace',
-          },
+  typography: {
+    fontFamily: 'Roboto, sans-serif', // Override the default font for all text
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          fontFamily: 'Roboto , sans-serif',
         },
       },
     },
-  });
+    MuiTypography: {
+      styleOverrides: {
+        root: {
+          fontFamily: 'Roboto , sans-serif',
+        },
+      },
+    },
+  },
+});
 
 const ClientThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [mounted, setMounted] = useState(false);

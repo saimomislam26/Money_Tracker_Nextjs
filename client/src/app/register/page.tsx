@@ -1,4 +1,10 @@
 import RegisterForm from './form';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Sign Up',
+  description: 'Sign Up to Money Tracker system',
+};
 
 export default function RegisterPage() {
   return (

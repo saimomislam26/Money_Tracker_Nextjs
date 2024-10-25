@@ -1,11 +1,11 @@
 'use client'
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { Avatar, Box, Button, Card, CardContent, Divider, Grid, Typography, List, ListItem, ListItemText, LinearProgress, Input, TextField } from '@mui/material';
 import { RootState } from '@/redux/store/store';
 import { useDispatch, useSelector } from 'react-redux';
 import Loading from '@/app/loading';
-import { setMonthlyIncome, updateUser } from '@/lib/api';
-import { setUserInfo } from '@/redux/slices/userSlice';
+import { setMonthlyIncome, updateUser, updateUserProfileImage } from '@/lib/api';
+import { setProfileImage, setUserInfo } from '@/redux/slices/userSlice';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import PasswordIcon from '@mui/icons-material/Password';
@@ -37,7 +37,45 @@ const Profile = () => {
     const [password, setPassword] = useState<Password>({ currentPassword: "", password: "" })
     const [loading, setLoading] = useState<boolean>(false)
     const [currentMonthIncome, setCurrentMonthIncome] = useState<Number | string>(0)
-    const [isShowInfo,setIsShowInfo] = useState<boolean>(false)
+    const [isShowInfo, setIsShowInfo] = useState<boolean>(false)
+    const [hover, setHover] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleMouseEnter = () => setHover(true);
+    const handleMouseLeave = () => setHover(false);
+
+    const handleAvatarClick = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.click(); // Open the file upload dialog
+        }
+    };
+
+    const handleFileChange = async(event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const formData = new FormData()
+            formData.append("myFile", file)
+            // Handle the uploaded file (e.g., upload to the server)
+            setLoading(true)
+            try {
+                const data = await updateUserProfileImage(formData)
+
+                dispatch(setProfileImage(data.profileImageUrl))
+
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+                if (error instanceof AxiosError) {
+                    if (error.response?.status === 401) {
+                        router.push('/login');
+                    }
+                } else {
+                    console.error('An unexpected error occurred:', error);
+                }
+            } finally {
+                setLoading(false)
+            }
+        }
+    };
 
     const router = useRouter()
 
@@ -162,33 +200,83 @@ const Profile = () => {
                     <Card sx={{ boxShadow: '0 2px 6px 0 rgb(218 218 253 / 65%), 0 2px 6px 0 rgb(206 206 238 / 54%)' }}>
                         <CardContent>
                             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                <Avatar
-                                    src="https://bootdey.com/img/Content/avatar/avatar6.png"
-                                    alt="Admin"
-                                    sx={{ width: 110, height: 110, p: 1, bgcolor: 'primary.main', borderRadius: '50%' }}
-                                />
-                                <Typography variant="h6" sx={{ mt: 2, wordWrap:'break-word',width:"100%",textAlign:"center" }} className='font-mono'>
+                                <Box
+                                    sx={{ position: 'relative', width: 110, height: 110 }}
+                                    onMouseEnter={handleMouseEnter}
+                                    onMouseLeave={handleMouseLeave}
+                                    onClick={handleAvatarClick}
+                                >
+                                    <Avatar
+                                        src={userInfo?.profileImageUrl?userInfo?.profileImageUrl:"https://bootdey.com/img/Content/avatar/avatar6.png"}
+                                        alt="Admin"
+                                        sx={{
+                                            width: 110,
+                                            height: 110,
+                                            // p: 1,
+                                            bgcolor: 'primary.main',
+                                            borderRadius: '50%',
+                                            cursor: 'pointer',
+                                            position: 'relative',
+                                        }}
+                                    />
+                                    {hover && (
+                                        <Box
+                                            sx={{
+                                                position: 'absolute',
+                                                top: 0,
+                                                left: 0,
+                                                width: '100%',
+                                                height: '100%',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                bgcolor: 'rgba(0, 0, 0, 0.5)',
+                                                color: 'white',
+                                                borderRadius: '50%',
+                                                textAlign: 'center',
+                                                cursor: 'pointer',
+                                                fontSize: '0.875rem',
+                                            }}
+                                        >
+                                            Upload Picture
+                                        </Box>
+                                    )}
+                                </Box>
+                                <Typography
+                                    variant="h6"
+                                    sx={{ mt: 2, wordWrap: 'break-word', width: '100%', textAlign: 'center' }}
+                                    className="font-mono"
+                                >
                                     {userData && `${userData?.firstName} ${userData?.lastName}`}
                                 </Typography>
 
+                                {/* Hidden file input for uploading an image */}
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    style={{ display: 'none' }}
+                                    accept="image/*"
+                                    onChange={handleFileChange}
+                                />
+
                             </Box>
                             <Divider sx={{ my: 2 }} />
-                 
+
                             <List>
                                 <ListItem>
-                                    <ListItemText sx={{ wordWrap:'break-word',width:"100%"}} primary="First Name" secondary={userData?.firstName} />
+                                    <ListItemText sx={{ wordWrap: 'break-word', width: "100%" }} primary="First Name" secondary={userData?.firstName} />
                                 </ListItem>
                                 <ListItem>
-                                    <ListItemText sx={{ wordWrap:'break-word',width:"100%"}} primary="Last Name" secondary={userData?.lastName} />
+                                    <ListItemText sx={{ wordWrap: 'break-word', width: "100%" }} primary="Last Name" secondary={userData?.lastName} />
                                 </ListItem>
                                 <ListItem>
-                                    <ListItemText sx={{ wordWrap:'break-word',width:"100%"}} primary="Email" secondary={userData?.email} />
+                                    <ListItemText sx={{ wordWrap: 'break-word', width: "100%" }} primary="Email" secondary={userData?.email} />
                                 </ListItem>
                                 <ListItem>
-                                    <ListItemText sx={{ wordWrap:'break-word',width:"100%"}} primary="General Income" secondary={userData?.income} />
+                                    <ListItemText sx={{ wordWrap: 'break-word', width: "100%" }} primary="General Income" secondary={userData?.income} />
                                 </ListItem>
                                 <ListItem>
-                                    <ListItemText sx={{ wordWrap:'break-word',width:"100%"}} primary="Current Month Income" secondary={userData?.currentMonthIncome !== null ? userData?.currentMonthIncome : userData?.income} />
+                                    <ListItemText sx={{ wordWrap: 'break-word', width: "100%" }} primary="Current Month Income" secondary={userData?.currentMonthIncome !== null ? userData?.currentMonthIncome : userData?.income} />
                                 </ListItem>
                             </List>
                         </CardContent>
@@ -325,11 +413,11 @@ const Profile = () => {
                             <Typography sx={{ marginBottom: "10px" }}> Date: {currentDate}</Typography>
                             <Box sx={{ width: "100%", marginBottom: "10px", display: "flex", alignItems: "center" }}>
                                 <InfoIcon
-                                sx={{color:"red",cursor:"pointer"}}
-                                titleAccess='Show Info'
-                                onClick={()=>{setIsShowInfo(!isShowInfo)}}
-                                 />
-                                <Typography sx={{ marginLeft: "10px", color:"red", display:isShowInfo?'block':'none' }} > If your this month income is different from your general income you can set your this month income specifically. All the calculation for this month will be based on given amount</Typography>
+                                    sx={{ color: "red", cursor: "pointer" }}
+                                    titleAccess='Show Info'
+                                    onClick={() => { setIsShowInfo(!isShowInfo) }}
+                                />
+                                <Typography sx={{ marginLeft: "10px", color: "red", display: isShowInfo ? 'block' : 'none' }} > If your this month income is different from your general income you can set your this month income specifically. All the calculation for this month will be based on given amount</Typography>
                             </Box>
                             <Grid container spacing={2}>
                                 <Grid item xs={12} sm={3}>

@@ -24,7 +24,7 @@ export const fetchUserInfo = createAsyncThunk<
     thunkAPI.dispatch(userSlice.actions.setFetching(true));
     try {
       const userInfo = await getUserInfo();
-      // console.log({ userInfo });
+      console.log({ userInfo });
 
       return userInfo;
     } catch (error) {
@@ -42,6 +42,7 @@ interface UserState {
   email: string
   income: number | null,
   currentMonthIncome: number | null,
+  profileImageUrl?: string | null
   status?: 'idle' | 'loading' | 'succeeded' | 'failed';
   error?: string | null;
   isFetching?: false,
@@ -56,9 +57,8 @@ const initialState: UserState = {
   currentMonthIncome: null,
   status: 'idle',
   error: null,
+  profileImageUrl: null
 };
-
-console.log("User Slice",initialState );
 
 
 export const userSlice = createSlice({
@@ -72,6 +72,10 @@ export const userSlice = createSlice({
       state.currentMonthIncome = action.payload.currentMonthIncome;
       state.firstName = action.payload.firstName;
       state.lastName = action.payload.lastName
+      state.profileImageUrl = action.payload?.profileImageUrl
+    },
+    setProfileImage(state, action: PayloadAction<string>) {
+      state.profileImageUrl = action.payload
     },
     clearUserInfo(state) {
       state._id = null;
@@ -80,6 +84,7 @@ export const userSlice = createSlice({
       state.currentMonthIncome = null;
       state.firstName = "";
       state.lastName = ""
+      state.profileImageUrl = null
     },
     setFetching(state, action) {
       state.isFetching = action.payload;
@@ -98,6 +103,7 @@ export const userSlice = createSlice({
         state.currentMonthIncome = action.payload?.currentMonthIncome || null;
         state.firstName = action.payload?.firstName || "";
         state.lastName = action.payload?.lastName || "";
+        state.profileImageUrl = action.payload?.profileImageUrl || null
       })
       .addCase(fetchUserInfo.rejected, (state, action) => {
         state.status = 'failed';
@@ -106,6 +112,6 @@ export const userSlice = createSlice({
   },
 });
 
-export const { setUserInfo, clearUserInfo } = userSlice.actions;
+export const { setUserInfo, clearUserInfo, setProfileImage } = userSlice.actions;
 
 export default userSlice.reducer;

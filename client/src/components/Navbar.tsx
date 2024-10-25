@@ -26,7 +26,7 @@ import logo from '@/images/logo.png'
 import Image from 'next/image';
 import { RootState } from '@/redux/store/store';
 
-const pages = [{ page: "Home", navigation: "/" }, { page: "Expenses", navigation: "/expenses" }, { page: "Summary", navigation: "/summary" }];
+const pages = [{ page: "Home", navigation: "/" }, { page: "Expenses", navigation: "/expenses" }];
 const settings = ['Profile', 'Logout'];
 
 const Navbar = () => {
@@ -37,6 +37,7 @@ const Navbar = () => {
     const [isDarkMode, setIsDarkMode] = useState<boolean>(false)
 
     const userName = useSelector((state: RootState) => state.user.firstName)
+    const userInfo = useSelector((state: RootState) => state.user)
 
     const dispatch = useDispatch()
 
@@ -150,7 +151,7 @@ const Navbar = () => {
 
                         <Tooltip title="Open settings">
                             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                <Avatar alt="Remy Sharp" src="" />
+                                <Avatar alt="User Image" src={userInfo.profileImageUrl? userInfo.profileImageUrl:""} />
                             </IconButton>
                         </Tooltip>
                         <Menu

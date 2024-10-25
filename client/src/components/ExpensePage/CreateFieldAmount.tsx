@@ -78,7 +78,7 @@ const CategoryFieldAmount: FC<DateProps> = ({ date, setOpen, sort, handleGetExpe
                         return (
                             <>
                                 <Grid size={{ xs: 6, sm: 6, md: 6 }} >
-                                    <Box className="font-mono font-semibold break-words rounded-lg" sx={{ width: "100%", backgroundColor: '#C4D7FF', padding: "3px", minHeight: "40px" }}>
+                                    <Box className="font-semibold break-words rounded-lg" sx={{ width: "100%", backgroundColor: '#C4D7FF', padding: "3px", minHeight: "40px" }}>
                                         {category.name}
                                     </Box>
                                 </Grid>

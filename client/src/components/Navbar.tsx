@@ -184,7 +184,7 @@ const Navbar = () => {
                         </Typography>
                     </Link>
                     </Box>
-                    <h6 className='mr-5'>{`Hi ${userName && userName}!`}</h6>
+                    <h6 className='mr-5'>{`Hi, ${userName && userName}`}</h6>
                     <Box sx={{ flexGrow: 0 }}>
 
                         <Tooltip title="Open settings">

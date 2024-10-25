@@ -12,6 +12,7 @@ import PasswordIcon from '@mui/icons-material/Password';
 import LockIcon from '@mui/icons-material/Lock';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import InfoIcon from '@mui/icons-material/Info';
+import { toast } from 'react-toastify';
 
 
 type UserDataState = {
@@ -59,8 +60,8 @@ const Profile = () => {
             setLoading(true)
             try {
                 const data = await updateUserProfileImage(formData)
-
                 dispatch(setProfileImage(data.profileImageUrl))
+                // toast.success(data.message)
 
             } catch (error) {
                 console.error('Error fetching user data:', error);
@@ -73,6 +74,7 @@ const Profile = () => {
                 }
             } finally {
                 setLoading(false)
+                setHover(false)
             }
         }
     };

@@ -49,8 +49,9 @@ module.exports.loginUser = async (req, res) => {
         const expirationDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toString()
         // new Date(Date.now() + 24 * 60 * 60 * 1000).toString(); 
         const token = tokenGeneration(userTokenData);
-        // Secure; HttpOnly;
-        const cookie = `token=${token};SameSite=None;Secure;Expires=${expirationDate}; Path=/;`
+        // ;SameSite=None;Secure; Path=/;
+        // ;HttpOnly; Secure; Path=/; SameSite=Strict
+        const cookie = `token=${token};Expires=${expirationDate};HttpOnly; Secure; Path=/; SameSite=Strict`
         res.setHeader('set-cookie', [cookie])
 
         return res.status(200).json({
@@ -164,8 +165,8 @@ module.exports.getUserInfo = async (req, res) => {
 
         // Convert Mongoose document to a plain object
         const userObj = user.toObject();
-        console.log({userObj});
-        
+        console.log({ userObj });
+
 
         // Add the custom field
         userObj.currentMonthIncome = incomeDetails.income;
@@ -184,7 +185,7 @@ module.exports.uploadProfileImage = async (req, res) => {
     // upload.single("myFile")
 
     console.log(req.file);
-    
+
     try {
         if (!req.file) {
             return res.status(400).json({ message: "There is no file" })
@@ -203,9 +204,10 @@ module.exports.uploadProfileImage = async (req, res) => {
 
             const { secure_url } = cloudinaryUpload
 
-            const updatedUser = await User.findByIdAndUpdate(userId, {profileImageUrl: secure_url}, {new:true})
+            const updatedUser = await User.findByIdAndUpdate(userId, { profileImageUrl: secure_url }, { new: true })
 
             res.status(200).json({
+                message: "Image Uploaded Successfully",
                 profileImageUrl: secure_url
             })
 

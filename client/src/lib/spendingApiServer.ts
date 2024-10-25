@@ -6,8 +6,7 @@ export const getAllExpense = async (year:number,month:number) => {
         const cookieStore = cookies();
         const token = cookieStore.get('token');
         // console.log({token});
-       
-
+    
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/expense/get-all-expense/${year}/${month}?sort=serial`, {
             headers: {
                 Authorization: `Bearer ${token?.value}`

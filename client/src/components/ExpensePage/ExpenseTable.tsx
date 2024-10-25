@@ -88,8 +88,8 @@ interface SummaryCategory {
 interface ExpenseProps {
     expenses: Expense[]
 }
-const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
-
+// : FC<ExpenseProps>
+const ExpenseTable = () => {
 
     const date = new Date();
 
@@ -108,7 +108,7 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
     const [isEdit, setIsEdit] = useState<Boolean>(false)
     const [tempDataStore, setTempDataStore] = useState<Array<Expense>>([])
 
-    const [spendingData, setSpendingData] = useState(expenses);
+    const [spendingData, setSpendingData] = useState<Expense[]>([]);
     // const income = useSelector((state: RootState) => state.user.income)
     // const currentMonthIncome = useSelector((state: RootState) => state.user.currentMonthIncome)
     
@@ -228,6 +228,8 @@ const ExpenseTable: FC<ExpenseProps> = ({ expenses }) => {
 
     useEffect(() => {
         getSummaryMonthly(filteredDate.year!, filteredDate.month!)
+        // handleGetExpenseServer()
+        handleGetExpense(currentYear, currentMonth, 'serial')
     }, [])
 
     if (loading) {

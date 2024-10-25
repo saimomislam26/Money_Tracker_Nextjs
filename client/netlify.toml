@@ -1,0 +1,8 @@
+[build]
+  command = "npm run build"
+  publish = "out"  # or ".next" if you are using SSG export mode
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

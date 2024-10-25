@@ -89,7 +89,7 @@ const Navbar = () => {
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
 
-                    <Image src={logo} alt="App Logo" width={80} height={80} className="hidden md:flex mr-1" />
+                    <Image src={logo} alt="App Logo" width={80} height={80} className="md:flex mr-1 hidden " />
                     <Link href={'/'}>
                         <Typography
                             variant="h6"
@@ -148,7 +148,6 @@ const Navbar = () => {
                     {/* <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} /> */}
                     {/* For mobile view icon */}
 
-
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                         {pages.map((page) => (
                             <Button
@@ -161,9 +160,29 @@ const Navbar = () => {
                             </Button>
                         ))}
                     </Box>
-                    <Box sx={{ width: "100%", display: { sm: "flex", md: "none" }, justifyContent: "center" }}  >
+                    <Box sx={{ width: "100%", display: { xs: "flex", md: "none" }, justifyContent: "center" }}  >
 
-                        <Image src={logo} alt="App Logo" width={80} height={80} />
+                        {/* <Image src={logo} alt="App Logo" width={80} height={80} /> */}
+
+                        <Link href={'/'}>
+                        <Typography
+                            variant="h6"
+                            noWrap
+                            component="a"
+                            href="#app-bar-with-responsive-menu"
+                            sx={{
+                                mr: 3,
+                                display: { xs: 'flex', md: 'none' },
+                                fontFamily: 'monospace',
+                                fontWeight: 700,
+                                letterSpacing: '.3rem',
+                                color: 'inherit',
+                                textDecoration: 'none',
+                            }}
+                        >
+                            আয়ব্যয়
+                        </Typography>
+                    </Link>
                     </Box>
                     <h6 className='mr-5'>{`Hi ${userName && userName}!`}</h6>
                     <Box sx={{ flexGrow: 0 }}>

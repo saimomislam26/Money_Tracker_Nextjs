@@ -24,7 +24,7 @@ export const fetchUserInfo = createAsyncThunk<
     thunkAPI.dispatch(userSlice.actions.setFetching(true));
     try {
       const userInfo = await getUserInfo();
-      console.log({ userInfo });
+      // console.log({ userInfo });
 
       return userInfo;
     } catch (error) {

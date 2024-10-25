@@ -90,6 +90,25 @@ const Navbar = () => {
                 <Toolbar disableGutters>
 
                     <Image src={logo} alt="App Logo" width={80} height={80} className="hidden md:flex mr-1" />
+                    <Link href={'/'}>
+                        <Typography
+                            variant="h6"
+                            noWrap
+                            component="a"
+                            href="#app-bar-with-responsive-menu"
+                            sx={{
+                                mr: 3,
+                                display: { xs: 'none', md: 'flex' },
+                                fontFamily: 'monospace',
+                                fontWeight: 700,
+                                letterSpacing: '.3rem',
+                                color: 'inherit',
+                                textDecoration: 'none',
+                            }}
+                        >
+                            আয়ব্যয়
+                        </Typography>
+                    </Link>
 
                     {/* For Mobile View Hanburg icon */}
                     <Box sx={{ flexGrow: 1, display: { sm: 'flex', md: 'none' } }}>
@@ -142,7 +161,7 @@ const Navbar = () => {
                             </Button>
                         ))}
                     </Box>
-                    <Box sx={{ width: "100%", display:{sm:"flex", md:"none"}, justifyContent:"center" }}className="xs:flex xs:justify-center xs:items-center md:hidden" >
+                    <Box sx={{ width: "100%", display: { sm: "flex", md: "none" }, justifyContent: "center" }}  >
 
                         <Image src={logo} alt="App Logo" width={80} height={80} />
                     </Box>
@@ -151,7 +170,7 @@ const Navbar = () => {
 
                         <Tooltip title="Open settings">
                             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                <Avatar alt="User Image" src={userInfo.profileImageUrl? userInfo.profileImageUrl:""} />
+                                <Avatar alt="User Image" src={userInfo.profileImageUrl ? userInfo.profileImageUrl : ""} />
                             </IconButton>
                         </Tooltip>
                         <Menu

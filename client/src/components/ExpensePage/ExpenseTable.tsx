@@ -1,5 +1,5 @@
 'use client'
-import React, { ChangeEvent, FC, useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import React, {  FC, useEffect, useState } from 'react'
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -29,20 +29,13 @@ import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import Loading from '../Loading';
 import ExpenseTableModal from './ExpenseTableModal';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/redux/store/store';
 import { styled } from '@mui/material/styles';
 import CardHeader from '@mui/material/CardHeader';
-import CardMedia from '@mui/material/CardMedia';
 import CardActions from '@mui/material/CardActions';
 import Collapse from '@mui/material/Collapse';
-import Avatar from '@mui/material/Avatar';
 import { IconButtonProps } from '@mui/material/IconButton';
-import { red } from '@mui/material/colors';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import ShareIcon from '@mui/icons-material/Share';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+
 
 interface ExpandMoreProps extends IconButtonProps {
     expand: boolean;

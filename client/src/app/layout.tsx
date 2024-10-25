@@ -9,18 +9,6 @@ import NavbarHandler from "@/components/NavbarHandler";
 import FetchUserInfo from "@/utils/fetchThunkUserInfo";
 import ClientThemeProvider from "@/components/ClientThemeProvider";
 
-
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
-
 export const metadata: Metadata = {
   title: "Home Page",
   description: "Create Your Daily Expense",

@@ -1,3 +1,6 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript"]
+  "extends": ["next/core-web-vitals", "next/typescript"],
+  "rules": {
+    "no-unused-vars": "off"  // or "off" if you want to disable it completely
+  }
 }

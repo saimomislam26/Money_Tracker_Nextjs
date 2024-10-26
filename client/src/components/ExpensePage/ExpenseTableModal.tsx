@@ -1,16 +1,13 @@
 'use client'
-
-import { RootState } from '@/redux/store/store';
 import { useRouter } from "next/navigation";
-import React, { FC, FunctionComponent, useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux';
-import { Modal, Box, TextField, Button, Fade, Backdrop, Typography, Grid2 as Grid } from '@mui/material';
+import React, { FC, useEffect, useState } from 'react'
+import { useDispatch } from 'react-redux';
+import { Modal, Box,  Fade, Backdrop, Grid2 as Grid } from '@mui/material';
 import { AxiosError } from 'axios';
 import { getCategory } from '@/lib/categoryApiClient';
 import CategoryChip from '../HomePage/CategoryChip';
 import { clearSavedCategory } from '@/redux/slices/categorySlice';
 import CategoryFieldAmount from './CreateFieldAmount';
-
 const style = {
     position: 'absolute' as 'absolute',
     top: '50%',
@@ -40,7 +37,6 @@ interface ExpenseTableModalProps {
 
 const ExpenseTableModal: FC<ExpenseTableModalProps> = ({ open, setOpen, filteredDate,selectedToEditDay,sort,handleGetExpense }) => {
     const dispatch = useDispatch()
-
     const router = useRouter()
 
     const [allCategories, setAllCategories] = useState([])
@@ -94,7 +90,7 @@ const ExpenseTableModal: FC<ExpenseTableModalProps> = ({ open, setOpen, filtered
                                     <Grid size={{ xs: 12, sm: 12, md: 6 }} >
                                         <p className="text-center mb-5 font-bold font-mono text-lg">Category List</p>
                                         {/* <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, width:"100%" }}> */}
-                                        <CategoryChip categories={allCategories} />
+                                        <CategoryChip />
                                         {/* </Box> */}
                                     </Grid>
                                     <Grid size={{ xs: 12, sm: 12, md: 6 }}>

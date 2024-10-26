@@ -1,10 +1,10 @@
 import axios from "axios";
-import { cookies } from "next/headers";
+// import { cookies } from "next/headers";
 
-export const getAllCategory = async () => {
+export const getAllCategory = async (token:string | null) => {
     try {
-        const cookieStore = cookies();
-        const token = cookieStore.get('token');
+        // const cookieStore = cookies();
+        // const token = cookieStore.get('token');
         // console.log({token});
         const date = new Date()
         const year = date.getFullYear()
@@ -12,10 +12,7 @@ export const getAllCategory = async () => {
         
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/category/get-all-category?year=${year}&month=${month}`, {
             headers: {
-                // 'Cache-Control': 'no-cache, no-store, must-revalidate',
-                // 'Pragma': 'no-cache',
-                // 'Expires': '0',
-                Authorization: `Bearer ${token?.value}`
+                Authorization: `Bearer ${token}`
             },
         })
         // console.log(response.data);

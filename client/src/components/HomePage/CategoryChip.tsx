@@ -2,13 +2,14 @@
 import { filterSelectedCategory, setAllCategories, setAllCategoriesAfterDelete, setInitialCategoriesFetch, setSelectedCategory } from '@/redux/slices/categorySlice';
 import { RootState } from '@/redux/store/store';
 import { Box, Button, Chip, Fade, Modal, Stack, TextField, Typography, Backdrop, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material'
-import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import React, { FC, useEffect, useState } from 'react'
+import Cookies from 'js-cookie';
 import { useDispatch, useSelector } from 'react-redux';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import { createCategory, deleteCategory } from '@/lib/categoryApiClient';
+import { getAllCategory } from '@/lib/categoryApiServer';
 
 
 const style = {
@@ -34,10 +35,10 @@ interface Category {
 interface CategoryChipProps {
     categories: Category[]; // Array of Category objects
 }
-
-const CategoryChip: FC<CategoryChipProps> = ({ categories }) => {
+// : FC<CategoryChipProps> { categories }
+const CategoryChip = () => {
     // console.log("After render client side",{categories});
-    
+    const token = Cookies.get('token');
 
     const router = useRouter()
 
@@ -57,7 +58,7 @@ const CategoryChip: FC<CategoryChipProps> = ({ categories }) => {
 
     const savedCategories = useSelector((state: RootState) => state.category.selectedCategory)
     const allCategories = useSelector((state: RootState) => state.category.allCategories)
-
+    const userInfo = useSelector((state: RootState) => state.user)
     const dispatch = useDispatch();
 
     // dispatch(setAllCategoriesAfterDelete(categories))
@@ -128,14 +129,37 @@ const CategoryChip: FC<CategoryChipProps> = ({ categories }) => {
         setTempDeleteCategoryId("")
     }
 
-    useEffect(() => {
-        if (JSON.stringify(allCategories) !== JSON.stringify(categories)) {
-            router.refresh()
-            // Initially set all categories to redux
-            // Then after delete and add operation handle categories from redux value
-            dispatch(setInitialCategoriesFetch(categories))
-        }
-    }, [categories])
+
+    const getCategories = async()=>{
+            try {
+                const data = await getAllCategory(token!)
+                dispatch(setInitialCategoriesFetch(data))
+                // console.log({ data });
+    
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+                if (error instanceof AxiosError) {
+                    if (error.response?.status === 401) {
+                        router.push('/login');
+                    }
+                } else {
+                    console.error('An unexpected error occurred:', error);
+                }
+            }
+    }
+
+    // useEffect(() => {
+    //     if (JSON.stringify(allCategories) !== JSON.stringify(categories)) {
+    //         router.refresh()
+    //         // Initially set all categories to redux
+    //         // Then after delete and add operation handle categories from redux value
+    //         dispatch(setInitialCategoriesFetch(categories))
+    //     }
+    // }, [categories])
+
+    useEffect(()=>{
+        getCategories()
+    },[])
 
 
     return (

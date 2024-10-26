@@ -51,7 +51,7 @@ module.exports.loginUser = async (req, res) => {
         const token = tokenGeneration(userTokenData);
         // ;SameSite=None;Secure; Path=/;
         // ;HttpOnly; Secure; Path=/; SameSite=Strict
-        const cookie = `token=${token};Expires=${expirationDate};SameSite=None;Secure; Path=/;`
+        const cookie = `token=${token};Expires=${expirationDate};HttpOnly; Secure; Path=/; SameSite=Strict`
         res.setHeader('set-cookie', [cookie])
 
         return res.status(200).json({

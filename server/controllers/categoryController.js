@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const { validationResult } = require('express-validator')
 const User = require('../models/userModel')
 const Category = require('../models/categoryModel')
+const Spending = require('../models/spendingModel')
 const { validationMessages, isErrorFounds } = require('../utils/errorMessageHelper')
 const { hashPasswordGenarator, verifyHash, tokenGeneration } = require('../services/userServices')
 
@@ -115,20 +116,31 @@ module.exports.getSearchCategory = async (req, res) => {
 
 module.exports.deleteCategory = async (req, res) => {
     try {
-        const userId = req.userId
-        const categoryId = new mongoose.Types.ObjectId(req.params.id)
+        const userId = req.userId;
+        const categoryId = new mongoose.Types.ObjectId(req.params.id);
 
-        const category = await Category.findById(categoryId)
+        // Check if the category exists
+        const category = await Category.findOne({ _id: categoryId, user: userId });
+        if (!category) return res.status(404).json({ message: "Category not found" });
 
-        if (!category) return res.status(404).json({ message: "Category not found" })
+        // Delete the category from the Category schema
+        await Category.findByIdAndDelete(categoryId);
 
-        const deletedCategory = await Category.findByIdAndDelete(categoryId)
+        // Update all Spending documents by removing the deleted category from days.categories array
+        await Spending.updateMany(
+            { "days.categories.category": categoryId },
+            { $pull: { "days.$[].categories": { category: categoryId } } }
+        );
 
-        const afterDeletedAllCategory = await Category.find({ user: userId }).select('name')
+        // Retrieve all remaining categories for the user
+        const afterDeletedAllCategory = await Category.find({ user: userId }).select('name');
 
-        return res.status(200).json({ message: "Deleted Successfully", afterDeletedAllCategory })
+        return res.status(200).json({
+            message: "Deleted Successfully",
+            afterDeletedAllCategory
+        });
     } catch (error) {
-        console.log(error.message);
-        res.status(500).json({ message: "Something Went Wrong" });
+        console.error(error.message);
+        return res.status(500).json({ message: "Something Went Wrong" });
     }
 }

@@ -6,7 +6,7 @@ const { createSpending, getAllSpending } = require('../controllers/spendingContr
 const router = express.Router()
 
 
-router.route('/create-expese').post(Authorize, createSpendigValidation,createSpending )
-router.route('/get-all-expese/:year/:month').get(Authorize, viewAllSpendigValidation, getAllSpending )
+router.route('/create-expense').post(Authorize, createSpendigValidation,createSpending )
+router.route('/get-all-expense/:year/:month').get(Authorize, viewAllSpendigValidation, getAllSpending )
 
 module.exports = router

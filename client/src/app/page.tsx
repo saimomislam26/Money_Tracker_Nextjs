@@ -1,9 +1,6 @@
 
-import { RootState } from "@/redux/store/store";
-import axios, { AxiosError } from "axios";
-import { useDispatch, useSelector } from "react-redux";
+
 import HomeModal from "@/components/HomePage/HomeModal";
-import { getUserInfo } from "@/lib/api";
 import { Box, Chip, Grid2 as Grid } from "@mui/material";
 import { getAllCategory } from "@/lib/categoryApiServer";
 import CategoryChip from "@/components/HomePage/CategoryChip";
@@ -21,13 +18,11 @@ export default async function Home() {
   function getUTCDate() {
     const now = new Date();
     const day = String(now.getUTCDate()).padStart(2, '0');
-    const month = String(now.getUTCMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+    const month = String(now.getUTCMonth() + 1).padStart(2, '0');
     const year = now.getUTCFullYear();
     
     return `${day}-${month}-${year}`;
 }
-
-console.log(getUTCDate());
 
   return (
     <main className="flex flex-col items-center gap-y-5 h-dvh bg-white dark:bg-gray-900 text-black dark:text-white" style={{ height: "calc(100vh - 70px)" }}>

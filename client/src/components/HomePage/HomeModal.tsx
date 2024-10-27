@@ -90,7 +90,7 @@ const router = useRouter()
       </Button> */}
        <Modal
         open={open}
-        onClose={handleClose}
+        // onClose={handleClose}
         closeAfterTransition
         BackdropComponent={Backdrop}
         BackdropProps={{

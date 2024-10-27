@@ -17,9 +17,13 @@ import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import ModeNightIcon from '@mui/icons-material/ModeNight';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
+import { useDispatch } from 'react-redux';
+import { clearUserInfo } from '@/redux/slices/userSlice';
+import { clearCategoryInfo } from '@/redux/slices/categorySlice';
+import Link from 'next/link';
 
-const pages = ['Products', 'Pricing', 'Blog'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+const pages = [{ page: "Home", navigation: "/" }, { page: "Expenses", navigation: "/expenses" }, { page: "Summary", navigation: "/summary" }];
+const settings = ['Profile', 'Logout'];
 
 const Navbar = () => {
     const router = useRouter()
@@ -27,6 +31,8 @@ const Navbar = () => {
     const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
 
     const [isDarkMode, setIsDarkMode] = useState<boolean>(false)
+
+    const dispatch = useDispatch()
 
     const handleOpenNavMenu = (event: MouseEvent<HTMLElement>) => {
         setAnchorElNav(event.currentTarget);
@@ -40,9 +46,10 @@ const Navbar = () => {
     };
 
     const handleCloseUserMenu = (value: string) => {
-
         if (value === 'Logout') {
             Cookies.remove('token', { path: '/' })
+            dispatch(clearUserInfo())
+            dispatch(clearCategoryInfo())
             router.push('/login')
         }
         setAnchorElUser(null);
@@ -118,8 +125,8 @@ const Navbar = () => {
                             sx={{ display: { xs: 'block', md: 'none' } }}
                         >
                             {pages.map((page) => (
-                                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                                    <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
+                                <MenuItem key={page.page} onClick={handleCloseNavMenu}>
+                                    <Link href={page.navigation}>{page.page}</Link>
                                 </MenuItem>
                             ))}
                         </Menu>
@@ -146,11 +153,12 @@ const Navbar = () => {
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                         {pages.map((page) => (
                             <Button
-                                key={page}
+                                key={page.page}
                                 onClick={handleCloseNavMenu}
                                 sx={{ my: 2, color: 'white', display: 'block' }}
                             >
-                                {page}
+                                <Link href={page.navigation}>{page.page}</Link>
+
                             </Button>
                         ))}
                     </Box>

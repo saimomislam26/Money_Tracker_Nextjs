@@ -39,10 +39,17 @@ export const categorySlice = createSlice({
     },
     filterSelectedCategory(state, action: PayloadAction<{ categoryId: string }>) {
       state.selectedCategory = state.selectedCategory.filter(category => category.category !== action.payload.categoryId)
+    },
+    clearCategoryInfo(state) {
+      state.selectedCategory = []
+      state.allCategories = []
+    },
+    clearSavedCategory(state){
+      state.selectedCategory = []
     }
   },
 });
 
-export const { setSelectedCategory, filterSelectedCategory, setAllCategories, setAllCategoriesAfterDelete, setInitialCategoriesFetch, setCategoriesWithAmount } = categorySlice.actions;
+export const { setSelectedCategory, filterSelectedCategory, setAllCategories, setAllCategoriesAfterDelete, setInitialCategoriesFetch, setCategoriesWithAmount, clearCategoryInfo, clearSavedCategory } = categorySlice.actions;
 
 export default categorySlice.reducer;

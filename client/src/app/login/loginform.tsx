@@ -42,7 +42,9 @@ const Loginform = () => {
                 password: ""
             })
             router.push("/")
-            const token = Cookies.get('token')
+            const token = localStorage.getItem("token")
+            // Cookies.get('token')
+            
             const userInfo = decodeToken(token!)
             // console.log({userInfo});
             

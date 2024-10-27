@@ -6,7 +6,6 @@ const { validationMessages, isErrorFounds } = require('../utils/errorMessageHelp
 const { hashPasswordGenarator, verifyHash, tokenGeneration } = require('../services/userServices')
 
 
-
 module.exports.createUser = async (req, res) => {
     const errors = validationMessages(validationResult(req).mapped())
 
@@ -51,7 +50,7 @@ module.exports.loginUser = async (req, res) => {
         const token = tokenGeneration(userTokenData);
         // ;SameSite=None;Secure; Path=/;
         // ;HttpOnly; Secure; Path=/; SameSite=Strict
-        const cookie = `token=${token};Expires=${expirationDate};HttpOnly; Secure; Path=/; SameSite=Lax`
+        const cookie = `token=${token};Expires=${expirationDate};SameSite=None;Secure; Path=/;`
         res.setHeader('set-cookie', [cookie])
 
         return res.status(200).json({

@@ -1,5 +1,5 @@
 import { AnyAction, Middleware } from '@reduxjs/toolkit';
-import Cookies from 'js-cookie';
+// import Cookies from 'js-cookie';
 import { clearUserInfo, setUserInfo } from '@/redux/slices/userSlice';
 import { decodeToken } from '@/utils/decodedToken';
 import { useRouter } from 'next/router';

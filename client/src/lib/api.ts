@@ -47,6 +47,7 @@ export const loginUser = async (userData: {
     const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/user/login-user`, userData, {
       withCredentials: true
     });
+    localStorage.setItem("token",response.data?._token)
     toast.success(response.data?.message)
     return response.data;
   } catch (error) {

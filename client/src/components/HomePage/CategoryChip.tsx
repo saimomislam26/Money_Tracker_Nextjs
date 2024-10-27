@@ -4,7 +4,7 @@ import { RootState } from '@/redux/store/store';
 import { Box, Button, Chip, Fade, Modal, Stack, TextField, Typography, Backdrop, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add';
 import React, { FC, useEffect, useState } from 'react'
-import Cookies from 'js-cookie';
+// import Cookies from 'js-cookie';
 import { useDispatch, useSelector } from 'react-redux';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
@@ -38,7 +38,8 @@ interface CategoryChipProps {
 // : FC<CategoryChipProps> { categories }
 const CategoryChip = () => {
     // console.log("After render client side",{categories});
-    const token = Cookies.get('token');
+    const token = localStorage.getItem('token')
+    //  Cookies.get('token');
 
     const router = useRouter()
 

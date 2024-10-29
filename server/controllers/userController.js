@@ -50,8 +50,7 @@ module.exports.loginUser = async (req, res) => {
         const token = tokenGeneration(userTokenData);
         // ;SameSite=None;Secure; Path=/;
         // ;HttpOnly; Secure; Path=/; SameSite=Strict
-        const domain = "ayebya.vercel.app";
-        const cookie = `token=${token};Expires=${expirationDate};HttpOnly; Secure; Path=/; SameSite=Strict; Domain=${domain}`
+        const cookie = `token=${token};Expires=${expirationDate};HttpOnly; Secure; Path=/; SameSite=None`
         res.setHeader('set-cookie', [cookie])
 
         return res.status(200).json({

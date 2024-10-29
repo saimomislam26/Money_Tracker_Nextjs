@@ -23,10 +23,19 @@ apiClient.interceptors.request.use((config) => {
 });
 
 const handleUnauthorizedError = () => {
-  // Cookies.remove('token', { path: "/" });
-  localStorage.removeItem("token")
-  // router.push('/login')
-  toast.warning("Unauthorized User")
+  const warningShown = localStorage.getItem("warningShown");
+
+  if (!warningShown) {
+    localStorage.setItem("warningShown", "true");
+    localStorage.removeItem("token");
+
+    toast.warning("Unauthorized User", {
+      onClose: () => localStorage.removeItem("warningShown"),
+    });
+
+    // Uncomment if you need to redirect to the login page
+    // router.push('/login');
+  }
 
 };
 

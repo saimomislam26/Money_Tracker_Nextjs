@@ -10,6 +10,7 @@ import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import { createCategory, deleteCategory } from '@/lib/categoryApiClient';
 import { getAllCategory } from '@/lib/categoryApiServer';
+import withAuth from '../HOC/withAuth';
 
 
 const style = {
@@ -138,9 +139,12 @@ const CategoryChip = () => {
                 // console.log({ data });
     
             } catch (error) {
-                console.error('Error fetching user data:', error);
+                
                 if (error instanceof AxiosError) {
+                    console.error('Error fetching user data:', error);
                     if (error.response?.status === 401) {
+
+                        
                         router.push('/login');
                     }
                 } else {

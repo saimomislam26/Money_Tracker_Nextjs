@@ -21,7 +21,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // Allow the request to proceed if authenticated
+  // Allow the request to proceed if authenticated 
   return NextResponse.next();
 }
 

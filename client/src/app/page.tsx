@@ -13,7 +13,7 @@ import { Box, Grid2 as Grid } from "@mui/material";
 // import { revalidatePath } from "next/cache";
 
 
-export default async function Home() {
+function Home() {
 
   // let categories = []
 
@@ -55,5 +55,7 @@ export default async function Home() {
     </div>
   );
 }
+
+export default Home
 
 

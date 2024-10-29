@@ -45,7 +45,7 @@ module.exports.loginUser = async (req, res) => {
         };
 
         const { firstName, lastName } = user
-        const expirationDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toString()
+        const expirationDate = new Date(Date.now() + 24 * 60 * 60 * 1000)
         // new Date(Date.now() + 24 * 60 * 60 * 1000).toString(); 
         const token = tokenGeneration(userTokenData);
         // ;SameSite=None;Secure; Path=/;
@@ -57,11 +57,13 @@ module.exports.loginUser = async (req, res) => {
             expires: expirationDate,
             httpOnly: true,
             secure: true,
-            sameSite: 'None', // for cross-origin requests
-            path: '/',       // root path
-            // Domain attribute is intentionally omitted
+            sameSite: 'None',
+            path: '/',     
         });
 
+
+
+        
         return res.status(200).json({
             message: "Logged in Successfully",
             "_token": token,

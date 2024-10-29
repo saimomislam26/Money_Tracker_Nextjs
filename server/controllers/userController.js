@@ -53,17 +53,14 @@ module.exports.loginUser = async (req, res) => {
         // const cookie = `token=${token};Expires=${expirationDate};HttpOnly; Secure; Path=/; SameSite=None`
         // res.setHeader('set-cookie', [cookie])
 
-        res.cookie('token', token, {
-            expires: expirationDate,
-            httpOnly: true,
-            secure: true,
-            sameSite: 'None',
-            path: '/',     
-        });
+        // res.cookie('token', token, {
+        //     expires: expirationDate,
+        //     httpOnly: true,
+        //     secure: true,
+        //     sameSite: 'None',
+        //     path: '/',     
+        // });
 
-
-
-        
         return res.status(200).json({
             message: "Logged in Successfully",
             "_token": token,

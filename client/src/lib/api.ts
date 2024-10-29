@@ -39,6 +39,11 @@ export const registerUser = async (userData: {
   }
 };
 
+const setTokenCookie = (token:string) => {
+  const expirationDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString();
+  document.cookie = `token=${token}; Expires=${expirationDate}; Path=/; Secure; SameSite=Strict`;
+};
+
 export const loginUser = async (userData: {
   email: string;
   password: string;
@@ -47,6 +52,7 @@ export const loginUser = async (userData: {
     const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/user/login-user`, userData, {
       withCredentials: true
     });
+    setTokenCookie(response.data?._token);
     localStorage.setItem("token", response.data?._token)
     toast.success(response.data?.message)
     return response.data;

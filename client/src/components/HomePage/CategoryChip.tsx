@@ -10,8 +10,6 @@ import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import { createCategory, deleteCategory } from '@/lib/categoryApiClient';
 import { getAllCategory } from '@/lib/categoryApiServer';
-import withAuth from '../HOC/withAuth';
-
 
 const style = {
     position: 'absolute' as 'absolute',

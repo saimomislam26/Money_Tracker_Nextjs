@@ -34,7 +34,7 @@ const HomeModal = () => {
   const dispatch = useDispatch();
 
   const [isLoading, setIsLoading] = useState(true)
-  const [inputValue, setInputValue] = useState<Number|string>();
+  const [inputValue, setInputValue] = useState<number|string>('');
   const [open, setOpen] = useState(false);
 
   const handleClose = () => setOpen(false);

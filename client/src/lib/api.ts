@@ -129,7 +129,7 @@ export const setMonthlyIncome = async (info: {
 }
 export const updateUser = async (userData: {
   password?: string,
-  income?: number | null,
+  income?: number | null| string ,
   firstName?: string,
   lastName?: string,
   email?: string

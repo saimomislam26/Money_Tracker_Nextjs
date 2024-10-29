@@ -3,9 +3,11 @@
 import Loading from "@/components/Loading";
 import { registerUser } from "@/lib/api";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ChangeEvent, useState } from "react";
 
 const RegisterForm = () => {
+    const router = useRouter()
     const [userInfo, setUserInfo] = useState({
         firstName: "",
         lastName: "",
@@ -37,6 +39,7 @@ const RegisterForm = () => {
                 email: "",
                 password: ""
             })
+            router.push('/login')
         } catch (error: any) {
             console.log(error);
 

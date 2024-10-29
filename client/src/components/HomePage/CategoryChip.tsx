@@ -167,7 +167,7 @@ const CategoryChip = () => {
 
     return (
         <div suppressHydrationWarning={true}>
-            <Stack direction="row" flexWrap="wrap" spacing={1} gap={1}>
+            <Stack direction="row" flexWrap="wrap"  gap={1} sx={{display:'flex', justifyContent:allCategories.length < 1? 'center':""}}>
                 {allCategories.length > 0 && allCategories.map((val: { _id: string, name: string }) => {
                     return (
                         <Chip

@@ -40,12 +40,12 @@ function Home() {
         <h1 className="font-bold text-center mb-14 font-mono text-lg">Date: {currentDate}</h1>
         <Box sx={{ width: "100%" }}>
           <Grid container spacing={{ sm: 2, xs: 1, md: 6 }} columns={{ xs: 4, sm: 8, md: 12 }} >
-            <Grid size={{ xs: 12, sm: 12, md: 6 }} >
+            <Grid size={{ xs: 12, sm: 12, md: 6 }} sx={{padding:2}} >
               <h3 className="text-center mb-5 font-bold font-mono text-lg">Category List</h3>
               {<CategoryChip  />}
             </Grid>
-            <Grid size={{ xs: 12, sm: 12, md: 6 }}>
-              <h3 className="text-center mb-5 font-bold font-mono text-lg">Provide Spent Amount on Selected categories</h3>
+            <Grid size={{ xs: 12, sm: 12, md: 6 }} sx={{padding:2}}>
+              <h3 className="text-center mb-5 font-bold font-mono text-lg mt-7 md:mt-0">Provide Spent Amount on Selected categories</h3>
               <CategoryFieldAmount />
             </Grid>
           </Grid>

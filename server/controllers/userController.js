@@ -50,8 +50,17 @@ module.exports.loginUser = async (req, res) => {
         const token = tokenGeneration(userTokenData);
         // ;SameSite=None;Secure; Path=/;
         // ;HttpOnly; Secure; Path=/; SameSite=Strict
-        const cookie = `token=${token};Expires=${expirationDate};HttpOnly; Secure; Path=/; SameSite=None`
-        res.setHeader('set-cookie', [cookie])
+        // const cookie = `token=${token};Expires=${expirationDate};HttpOnly; Secure; Path=/; SameSite=None`
+        // res.setHeader('set-cookie', [cookie])
+
+        res.cookie('token', token, {
+            expires: expirationDate,
+            httpOnly: true,
+            secure: true,
+            sameSite: 'None', // for cross-origin requests
+            path: '/',       // root path
+            // Domain attribute is intentionally omitted
+        });
 
         return res.status(200).json({
             message: "Logged in Successfully",

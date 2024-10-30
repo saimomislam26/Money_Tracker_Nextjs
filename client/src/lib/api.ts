@@ -53,7 +53,7 @@ export const loginUser = async (userData: {
       withCredentials: true
     });
     setTokenCookie(response.data?._token);
-    localStorage.setItem("token", response.data?._token)
+    // localStorage.setItem("token", response.data?._token)
     toast.success(response.data?.message)
     return response.data;
   } catch (error) {

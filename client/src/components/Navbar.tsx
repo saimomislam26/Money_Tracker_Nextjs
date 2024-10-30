@@ -55,7 +55,7 @@ const Navbar = () => {
     const handleCloseUserMenu = (value: string) => {
         if (value === 'Logout') {
             Cookies.remove('token', { path: '/' })
-            localStorage.removeItem("token")
+            // localStorage.removeItem("token")
             dispatch(clearUserInfo())
             dispatch(clearCategoryInfo())
             router.push('/login')

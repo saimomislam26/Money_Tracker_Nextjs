@@ -10,8 +10,8 @@ const apiClient = axios.create({
 
 // Add a request interceptor to inject the token into the headers
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token")
-  // Cookies.get('token');
+  // const token = localStorage.getItem("token")
+  const token = Cookies.get('token');
   
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -26,7 +26,8 @@ const handleUnauthorizedError = () => {
 
   if (!warningShown) {
     localStorage.setItem("warningShown", "true");
-    localStorage.removeItem("token");
+    // localStorage.removeItem("token");
+    Cookies.remove('token', { path: '/' })
 
     toast.warning("Unauthorized User", {
       onClose: () => localStorage.removeItem("warningShown"),

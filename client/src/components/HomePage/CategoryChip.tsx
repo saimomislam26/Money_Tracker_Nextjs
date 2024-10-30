@@ -3,7 +3,7 @@ import { filterSelectedCategory, setAllCategories, setAllCategoriesAfterDelete, 
 import { RootState } from '@/redux/store/store';
 import { Box, Button, Chip, Fade, Modal, Stack, TextField, Typography, Backdrop, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add';
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useEffect, useRef, useState } from 'react'
 // import Cookies from 'js-cookie';
 import { useDispatch, useSelector } from 'react-redux';
 import { AxiosError } from 'axios';
@@ -36,6 +36,8 @@ interface CategoryChipProps {
 }
 // : FC<CategoryChipProps> { categories }
 const CategoryChip = () => {
+    const debounceRef = useRef(false);
+
     // console.log("After render client side",{categories});
     const token = localStorage.getItem('token')
     //  Cookies.get('token');
@@ -78,6 +80,12 @@ const CategoryChip = () => {
     }
 
     const createNewCategory = async () => {
+        if (debounceRef.current) return;
+
+        debounceRef.current = true;
+        setTimeout(() => {
+            debounceRef.current = false;
+        }, 2000);
         let date
         let month
         let year
@@ -112,6 +120,12 @@ const CategoryChip = () => {
     }
 
     const handleDelete = async (categoryId: string) => {
+        if (debounceRef.current) return;
+
+        debounceRef.current = true;
+        setTimeout(() => {
+            debounceRef.current = false;
+        }, 2000);
         try {
             const data = await deleteCategory(categoryId)
             dispatch(setAllCategoriesAfterDelete({ afterDeletedAllCategory: data.afterDeletedAllCategory, categoryId }))
@@ -130,25 +144,25 @@ const CategoryChip = () => {
     }
 
 
-    const getCategories = async()=>{
-            try {
-                const data = await getAllCategory(token!)
-                dispatch(setInitialCategoriesFetch(data))
-                // console.log({ data });
-    
-            } catch (error) {
-                
-                if (error instanceof AxiosError) {
-                    console.error('Error fetching user data:', error);
-                    if (error.response?.status === 401) {
+    const getCategories = async () => {
+        try {
+            const data = await getAllCategory(token!)
+            dispatch(setInitialCategoriesFetch(data))
+            // console.log({ data });
 
-                        
-                        router.push('/login');
-                    }
-                } else {
-                    console.error('An unexpected error occurred:', error);
+        } catch (error) {
+
+            if (error instanceof AxiosError) {
+                console.error('Error fetching user data:', error);
+                if (error.response?.status === 401) {
+
+
+                    router.push('/login');
                 }
+            } else {
+                console.error('An unexpected error occurred:', error);
             }
+        }
     }
 
     // useEffect(() => {
@@ -160,14 +174,14 @@ const CategoryChip = () => {
     //     }
     // }, [categories])
 
-    useEffect(()=>{
+    useEffect(() => {
         getCategories()
-    },[])
+    }, [])
 
 
     return (
         <div suppressHydrationWarning={true}>
-            <Stack direction="row" flexWrap="wrap"  gap={1} sx={{display:'flex', justifyContent:allCategories.length < 1? 'center':""}}>
+            <Stack direction="row" flexWrap="wrap" gap={1} sx={{ display: 'flex', justifyContent: allCategories.length < 1 ? 'center' : "" }}>
                 {allCategories.length > 0 && allCategories.map((val: { _id: string, name: string }) => {
                     return (
                         <Chip

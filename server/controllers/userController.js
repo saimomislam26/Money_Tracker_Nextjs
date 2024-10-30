@@ -269,13 +269,15 @@ module.exports.uploadProfileImage = async (req, res) => {
 }
 
 module.exports.verifyToken = async (req, res) => {
-    console.log(req.params.token);
+    // console.log(req.params.token);
     
     try {
         const user = await User.findOne({
             verificationToken: req.params.token,
             verificationTokenExpires: { $gt: Date.now() }
         });
+        console.log({user});
+        
 
         if (!user) {
             return res.status(400).json({ message: 'Verification link is invalid or has expired.' });

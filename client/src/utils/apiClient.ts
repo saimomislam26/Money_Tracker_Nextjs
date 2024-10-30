@@ -2,7 +2,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';
-import { NextRouter, Router, useRouter } from 'next/router';
 
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -33,8 +32,6 @@ const handleUnauthorizedError = () => {
       onClose: () => localStorage.removeItem("warningShown"),
     });
 
-    // Uncomment if you need to redirect to the login page
-    // router.push('/login');
   }
 
 };

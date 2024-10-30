@@ -1,6 +1,5 @@
 import { apiCall } from '@/utils/apiClient';
 import axios, { AxiosError } from 'axios';
-import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 
 export const registerUser = async (userData: {
@@ -12,7 +11,6 @@ export const registerUser = async (userData: {
   try {
     const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/user/create-user`, userData);
     toast.success(response.data?.message)
-    useRouter().push('/login')
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {

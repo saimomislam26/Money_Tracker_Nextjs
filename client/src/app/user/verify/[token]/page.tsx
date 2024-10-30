@@ -17,22 +17,28 @@ const VerifyPage = ({ params }: { params: { token: string } }) => {
         setLoading(true);
         // Call the backend verification API
         const response = await axios.get(`http://localhost:5000/user/verify/${token}`);
+        console.log("response", response);
 
         if (response.status === 200) {
           setStatus('Verification successful! Redirecting to login...');
           setTimeout(() => {
             router.push('/login'); // Redirect to login after 3 seconds
-          }, 3000);
+          }, 2000);
         }
       } catch (error) {
-        setStatus('Verification failed. Token may be invalid or expired.');
+        console.log(error);
+        
+        setStatus('Verification failed. Token may be invalid or expired. Redirecting to register page.... ');
+        setTimeout(() => {
+          router.push('/register'); // Redirect to login after 3 seconds
+        }, 2000);
       } finally {
         setLoading(false);
       }
     };
 
     verifyToken();
-  }, [token, router]);
+  }, []);
 
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>

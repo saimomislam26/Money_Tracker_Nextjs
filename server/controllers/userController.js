@@ -3,7 +3,8 @@ const cloudinary = require('cloudinary')
 const { validationResult } = require('express-validator')
 const User = require('../models/userModel')
 const { validationMessages, isErrorFounds } = require('../utils/errorMessageHelper')
-const { hashPasswordGenarator, verifyHash, tokenGeneration } = require('../services/userServices')
+const { hashPasswordGenarator, verifyHash, tokenGeneration } = require('../services/userServices');
+const { cryptoGeneration, sendVerificationMail } = require('../utils/helper');
 
 
 module.exports.createUser = async (req, res) => {
@@ -12,16 +13,53 @@ module.exports.createUser = async (req, res) => {
     if (isErrorFounds(errors)) return res.status(400).json({ "message": "Validation Error", errors })
     const { firstName, lastName, email, password } = req.body
 
-    const user = await User.findOne({ email })
-    if (user) return res.status(400).json({ message: "User already exists" })
+
+    // Check if the user exists and is unverified
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+        if (!existingUser.isVerified) {
+            // Check if the verification token has expired
+            if (existingUser.verificationTokenExpires < Date.now()) {
+                // Generate a new token and expiry
+                const verificationToken = cryptoGeneration();
+                const verificationTokenExpires = Date.now() + 3600000; // 1 hour expiry
+
+                // Update existing user data with new verification details
+                existingUser.verificationToken = verificationToken;
+                existingUser.verificationTokenExpires = verificationTokenExpires;
+                await existingUser.save();
+
+                // Resend verification email
+                const verificationLink = `${req.protocol}://${process.env.CLIENT_DOMAIN}/user/verify/${verificationToken}`;
+                await sendVerificationMail(verificationLink, email);
+
+                return res.status(200).json({ message: "Previous verification expired. A new verification email has been sent." });
+            } else {
+                return res.status(400).json({ message: "Email verification pending. Please check your email." });
+            }
+        } else {
+            return res.status(400).json({ message: "User already exists" });
+        }
+    }
 
     const hashPassword = await hashPasswordGenarator(password)
 
-    const userData = { firstName, lastName, email, password: hashPassword }
 
+    const verificationToken = cryptoGeneration()
+    const verificationTokenExpires = Date.now() + 3600000;
+
+    const userData = {
+        firstName, lastName, email, password: hashPassword, verificationToken,
+        verificationTokenExpires
+    }
     const saveUser = await new User(userData).save()
 
-    return res.status(200).json({ message: "Created Successfully" })
+    // Create verification link
+    const verificationLink = `${req.protocol}://${process.env.CLIENT_DOMAIN}/user/verify/${verificationToken}`;
+
+    await sendVerificationMail(verificationLink, email)
+
+    return res.status(200).json({ message: "Registration successful. Please check your email for verification link." })
 }
 
 module.exports.loginUser = async (req, res) => {
@@ -31,6 +69,7 @@ module.exports.loginUser = async (req, res) => {
         const user = await User.findOne({ email: email })
 
         if (!user) return res.status(404).json({ message: "This user is not registered" })
+        if (!user.isVerified) return res.status(404).json({ message: "Please verify your email to log in." })
 
         let isValid = await verifyHash(password, user.password)
         if (!isValid) return res.status(400).json({ message: "wrong credential" });
@@ -227,4 +266,31 @@ module.exports.uploadProfileImage = async (req, res) => {
         return res.status(500).json({ message: "Internal Server  Error" })
     }
 
+}
+
+module.exports.verifyToken = async (req, res) => {
+    console.log(req.params.token);
+    
+    try {
+        const user = await User.findOne({
+            verificationToken: req.params.token,
+            verificationTokenExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: 'Verification link is invalid or has expired.' });
+        }
+
+        user.isVerified = true;
+        user.verificationToken = undefined;
+        user.verificationTokenExpires = undefined;
+        await user.save();
+
+        return res.status(200).json({"message":"Email Verification Successful"})
+
+        // // Redirect to login page or send a success message
+        // res.redirect(`${process.env.CLIENT_URL}/login`); // Ensure you have a route for /login on the client side.
+    } catch (error) {
+        res.status(500).json({ message: 'Verification failed', error });
+    }
 }

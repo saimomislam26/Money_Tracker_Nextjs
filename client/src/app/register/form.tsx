@@ -39,7 +39,6 @@ const RegisterForm = () => {
                 email: "",
                 password: ""
             })
-            router.push('/login')
         } catch (error: any) {
             console.log(error);
 

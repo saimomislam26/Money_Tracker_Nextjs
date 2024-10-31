@@ -69,7 +69,7 @@ const Loginform = () => {
 
                     <div className="p-8 rounded-2xl bg-blue-100 shadow-lg">
                         <h2 className="text-gray-800 text-center text-2xl font-bold" >Sign in</h2>
-                        <form className="mt-8 space-y-4" >
+                        <form onSubmit={handleSubmit}className="mt-8 space-y-4" >
                             <div>
                                 <label className="text-gray-800 text-sm mb-2 block">Email</label>
                                 <div className="relative flex items-center">
@@ -102,22 +102,17 @@ const Loginform = () => {
                                 </div>
                             </div>
 
-                            {/* <div className="flex flex-wrap items-center justify-between gap-4">
-                                <div className="flex items-center">
-                                    <input id="remember-me" name="remember-me" type="checkbox" className="h-4 w-4 shrink-0 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
-                                    <label htmlFor="remember-me" className="ml-3 block text-sm text-gray-800">
-                                        Remember me
-                                    </label>
-                                </div>
+                            <div className="flex flex-wrap items-center justify-between gap-4">
+                                
                                 <div className="text-sm">
-                                    <a href="jajvascript:void(0);" className="text-blue-600 hover:underline font-semibold">
+                                    <Link href="/login/password-reset" className="text-blue-600 hover:underline font-semibold cursor-pointer">
                                         Forgot your password?
-                                    </a>
+                                    </Link>
                                 </div>
-                            </div> */}
+                            </div>
 
                             <div className="!mt-8">
-                                <button type="submit" className="w-full py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none" onClick={handleSubmit}>
+                                <button type="submit" className="w-full py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none" >
                                     Sign in
                                 </button>
                             </div>

@@ -9,7 +9,7 @@ export default function FetchUserInfo() {
   const pathname = usePathname();
   useEffect(() => {
 
-    if (pathname !== '/login' && pathname !== '/register' && !pathname.startsWith("/user/verify")) {
+    if (!pathname.startsWith('/login') && pathname !== '/register' && !pathname.startsWith("/user")) {
       dispatch(fetchUserInfo());
     }
   }, [dispatch, pathname]);

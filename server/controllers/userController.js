@@ -4,7 +4,7 @@ const { validationResult } = require('express-validator')
 const User = require('../models/userModel')
 const { validationMessages, isErrorFounds } = require('../utils/errorMessageHelper')
 const { hashPasswordGenarator, verifyHash, tokenGeneration } = require('../services/userServices');
-const { cryptoGeneration, sendVerificationMail } = require('../utils/helper');
+const { cryptoGeneration, sendVerificationMail, sendPasswordResetEmail } = require('../utils/helper');
 
 
 module.exports.createUser = async (req, res) => {
@@ -86,7 +86,7 @@ module.exports.loginUser = async (req, res) => {
             }
         }
 
-        if(!user.monthlyIncomes && user.income){
+        if (!user.monthlyIncomes && user.income) {
             user.monthlyIncomes.push({ year, month, income: user.income })
             await user.save()
         }
@@ -314,3 +314,66 @@ module.exports.verifyToken = async (req, res) => {
         res.status(500).json({ message: 'Verification failed', error });
     }
 }
+
+module.exports.requestPasswordReset = async (req, res) => {
+    const { email } = req.body;
+    // console.log(req.body);
+
+    try {
+        // Check if the email exists in the database
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: 'User with this email does not exist.' });
+        }
+
+        // Generate a secure token and set expiry (1 hour)
+        const resetToken = cryptoGeneration();
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordExpires = Date.now() + 3600000; // 1 hour expiry
+
+        // Save the updated user with the reset token and expiry
+        await user.save();
+
+        // Construct the password reset link
+        const resetLink = `${req.protocol}://${process.env.CLIENT_DOMAIN}/user/reset-password/${resetToken}`;
+
+        // Send the password reset email
+        await sendPasswordResetEmail(resetLink, email);
+
+        return res.status(200).json({ message: 'Password reset link sent to your email.' });
+    } catch (error) {
+        console.log({error});
+        
+        res.status(500).json({ message: 'Error requesting password reset', error });
+    }
+};
+
+module.exports.resetPassword = async (req, res) => {
+    const { token } = req.params;
+    const { password } = req.body;
+  
+    try {
+      // Find the user by reset token and ensure token is not expired
+      const user = await User.findOne({
+        resetPasswordToken: token,
+        resetPasswordExpires: { $gt: Date.now() }
+      });
+  
+      if (!user) {
+        return res.status(400).json({ message: 'Invalid or expired token.' });
+      }
+  
+      // Hash the new password
+      const hashedPassword = await hashPasswordGenarator(password)
+  
+      // Update the user's password and clear the reset token and expiry
+      user.password = hashedPassword;
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+      await user.save();
+  
+      return res.status(200).json({ message: 'Password reset successful.' });
+    } catch (error) {
+      res.status(500).json({ message: 'Error resetting password', error });
+    }
+  };

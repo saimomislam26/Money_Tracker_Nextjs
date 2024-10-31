@@ -1,5 +1,5 @@
 const express = require('express')
-const { createUser, loginUser, updateUser, getUserInfo, setMonthlyIncome, uploadProfileImage, verifyToken } = require('../controllers/userController')
+const { createUser, loginUser, updateUser, getUserInfo, setMonthlyIncome, uploadProfileImage, verifyToken, resetPassword, requestPasswordReset } = require('../controllers/userController')
 const { createEmployeeValidation, updateEmployeeValidation } = require('../utils/validator/userValidation')
 const Authorize = require('../middleware/authorization')
 const { uploadSingleFile } = require('../middleware/uploadFile')
@@ -13,5 +13,7 @@ router.route('/login-user').post(loginUser)
 router.route('/update-user').put(Authorize, updateEmployeeValidation, updateUser)
 router.route('/get-user-info').get(Authorize, getUserInfo)
 router.route('/set-user-monthly-income').post(Authorize, setMonthlyIncome)
+router.route('/reset-password-request').post( requestPasswordReset)
+router.route('/reset-password/:token').post( resetPassword)
 
 module.exports = router

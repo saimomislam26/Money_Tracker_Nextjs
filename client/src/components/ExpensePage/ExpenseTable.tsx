@@ -1,5 +1,5 @@
 'use client'
-import React, {  FC, useEffect, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -111,10 +111,10 @@ const ExpenseTable = () => {
     const [spendingData, setSpendingData] = useState<Expense[]>([]);
     // const income = useSelector((state: RootState) => state.user.income)
     // const currentMonthIncome = useSelector((state: RootState) => state.user.currentMonthIncome)
-    
+
     const [summaryCategories, setSummaryCategories] = useState<Array<SummaryCategory>>([])
     const [totalAmountExpenseSummary, setTotalAmountExpenseSummary] = useState<number>(0)
-    const [income,setIncome] = useState<number>(0)
+    const [income, setIncome] = useState<number>(0)
 
     const [expanded, setExpanded] = React.useState(false);
 
@@ -171,10 +171,15 @@ const ExpenseTable = () => {
             }
         }
     }
-
+    let isCalledVerify = false
     const handleGetExpense = async (year: number, month: number, sort: string) => {
+        if (isCalledVerify) {
+            isCalledVerify = false
+            return;
+        }
         setLoading(true)
         try {
+            isCalledVerify = true
             const data = await getExpense(year, month, sort)
             setSpendingData(data)
             getSummaryMonthly(filteredDate.year!, filteredDate.month!)
@@ -229,6 +234,7 @@ const ExpenseTable = () => {
     useEffect(() => {
         getSummaryMonthly(filteredDate.year!, filteredDate.month!)
         // handleGetExpenseServer()
+
         handleGetExpense(currentYear, currentMonth, 'serial')
     }, [])
 
@@ -455,12 +461,12 @@ const ExpenseTable = () => {
                         <Table sx={{ minWidth: 650 }} aria-label="spending table">
                             <TableHead>
                                 <TableRow sx={{ backgroundColor: "#2176D2" }}>
-                                    <TableCell sx={{color:"white"}}>Day</TableCell>
-                                    <TableCell sx={{color:"white"}}>Categories</TableCell>
-                                    <TableCell sx={{color:"white"}}>Amount</TableCell>
-                                    <TableCell sx={{color:"white"}}>Total Category</TableCell>
-                                    <TableCell sx={{color:"white"}}>Total Spending</TableCell>
-                                    <TableCell sx={{color:"white"}}>Action</TableCell>
+                                    <TableCell sx={{ color: "white" }}>Day</TableCell>
+                                    <TableCell sx={{ color: "white" }}>Categories</TableCell>
+                                    <TableCell sx={{ color: "white" }}>Amount</TableCell>
+                                    <TableCell sx={{ color: "white" }}>Total Category</TableCell>
+                                    <TableCell sx={{ color: "white" }}>Total Spending</TableCell>
+                                    <TableCell sx={{ color: "white" }}>Action</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -499,7 +505,7 @@ const ExpenseTable = () => {
                                                                                         handleAmountChange(dayIndex, categoryIndex, inputValue ? Number(inputValue) : 0)
                                                                                     }
                                                                                 }
-                                                                                // inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                                                                            // inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                                                                             /> :
                                                                                 <Typography>{category.amount}</Typography>
                                                                         }

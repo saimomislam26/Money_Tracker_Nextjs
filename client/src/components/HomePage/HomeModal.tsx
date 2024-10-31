@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { Modal, Box, TextField, Button, Fade, Backdrop, Typography } from '@mui/material';
-import { getUserInfo, updateUser } from '@/lib/api';
+import { getUserInfo, setMonthlyIncome, setMonthlyIncomeFirstTime, updateUser } from '@/lib/api';
 import { AxiosError } from 'axios';
 import { setUserInfo } from '@/redux/slices/userSlice';
 
@@ -34,7 +34,7 @@ const HomeModal = () => {
   const dispatch = useDispatch();
 
   const [isLoading, setIsLoading] = useState(true)
-  const [inputValue, setInputValue] = useState<number|string>('');
+  const [inputValue, setInputValue] = useState<number | string>('');
   const [open, setOpen] = useState(false);
 
   const handleClose = () => setOpen(false);
@@ -42,7 +42,11 @@ const HomeModal = () => {
 
   const updateIncome = async () => {
     try {
+      const now = new Date()
+      const year = now.getFullYear();
+      const month = now.getMonth() + 1;
       const data = await updateUser({ income: inputValue })
+      await setMonthlyIncomeFirstTime({year, month, income:inputValue})
     } catch (error) {
       console.error('Error fetching user data:', error);
       if (error instanceof AxiosError) {
@@ -80,8 +84,8 @@ const HomeModal = () => {
   useEffect(() => {
     // console.log({income});
     if (!isLoading && (income === undefined || income === null)) {
-    setOpen(true);
-    } 
+      setOpen(true);
+    }
   }, [isLoading, income])
 
   return (
@@ -91,7 +95,7 @@ const HomeModal = () => {
       </Button> */}
       <Modal
         open={open}
-        // onClose={handleClose}
+        onClose={handleClose}
         closeAfterTransition
         BackdropComponent={Backdrop}
         BackdropProps={{

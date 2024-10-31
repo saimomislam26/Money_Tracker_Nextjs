@@ -278,7 +278,8 @@ const Profile = () => {
                                     <ListItemText sx={{ wordWrap: 'break-word', width: "100%" }} primary="General Income" secondary={userData?.income} />
                                 </ListItem>
                                 <ListItem>
-                                    <ListItemText sx={{ wordWrap: 'break-word', width: "100%" }} primary="Current Month Income" secondary={userData?.currentMonthIncome !== null ? userData?.currentMonthIncome : userData?.income} />
+                                    <ListItemText sx={{ wordWrap: 'break-word', width: "100%" }} primary="Current Month Income" secondary={String(currentMonthIncome)} />
+                                    {/* userData?.currentMonthIncome !== null ? userData?.currentMonthIncome : userData?.income */}
                                 </ListItem>
                             </List>
                         </CardContent>

@@ -64,6 +64,10 @@ module.exports.createUser = async (req, res) => {
 
 module.exports.loginUser = async (req, res) => {
     try {
+        const now = new Date()
+        const year = now.getFullYear()
+        const month = now.getMonth() + 1
+
         const { email, password } = req.body
 
         const user = await User.findOne({ email: email })
@@ -74,13 +78,27 @@ module.exports.loginUser = async (req, res) => {
         let isValid = await verifyHash(password, user.password)
         if (!isValid) return res.status(400).json({ message: "wrong credential" });
 
+        if (user.monthlyIncomes && user.income) {
+            const existingMonthlyIncome = user.monthlyIncomes.find(m => m.year === Number(year) && m.month === Number(month));
+            if (!existingMonthlyIncome) {
+                user.monthlyIncomes.push({ year, month, income: user.income })
+                await user.save()
+            }
+        }
+
+        if(!user.monthlyIncomes && user.income){
+            user.monthlyIncomes.push({ year, month, income: user.income })
+            await user.save()
+        }
+
         const userTokenData = {
             "_id": user._id,
             "email": user.email,
             "firstName": user.firstName,
             "lastName": user.lastName,
             "income": user.income,
-            "profileImage": user?.profileImageUrl | null
+            "profileImage": user?.profileImageUrl | null,
+            "monthlyIncome": user.monthlyIncomes
         };
 
         const { firstName, lastName } = user
@@ -211,7 +229,7 @@ module.exports.getUserInfo = async (req, res) => {
 
         // Convert Mongoose document to a plain object
         const userObj = user.toObject();
-        console.log({ userObj });
+        // console.log({ userObj });
 
 
         // Add the custom field
@@ -270,14 +288,14 @@ module.exports.uploadProfileImage = async (req, res) => {
 
 module.exports.verifyToken = async (req, res) => {
     // console.log(req.params.token);
-    
+
     try {
         const user = await User.findOne({
             verificationToken: req.params.token,
             verificationTokenExpires: { $gt: Date.now() }
         });
-        console.log({user});
-        
+        console.log({ user });
+
 
         if (!user) {
             return res.status(400).json({ message: 'Verification link is invalid or has expired.' });
@@ -288,7 +306,7 @@ module.exports.verifyToken = async (req, res) => {
         user.verificationTokenExpires = undefined;
         await user.save();
 
-        return res.status(200).json({"message":"Email Verification Successful"})
+        return res.status(200).json({ "message": "Email Verification Successful" })
 
         // // Redirect to login page or send a success message
         // res.redirect(`${process.env.CLIENT_URL}/login`); // Ensure you have a route for /login on the client side.

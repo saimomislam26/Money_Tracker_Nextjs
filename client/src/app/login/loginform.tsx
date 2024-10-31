@@ -43,12 +43,12 @@ const Loginform = () => {
             })
             router.push("/")
             // const token = localStorage.getItem("token")
-            const token = Cookies.get('token')
+            // const token = Cookies.get('token')
             
-            const userInfo = decodeToken(token!)
-            // console.log({userInfo});
+            // const userInfo = decodeToken(token!)
+            // // console.log({userInfo});
             
-            dispatch(setUserInfo(userInfo!))
+            // dispatch(setUserInfo(userInfo!))
         } catch (error: any) {
             console.log(error);
         } finally {

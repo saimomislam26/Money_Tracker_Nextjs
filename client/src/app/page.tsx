@@ -1,4 +1,4 @@
-'use server'
+'use client'
 import CategoryChip from "@/components/HomePage/CategoryChip";
 import CategoryFieldAmount from "@/components/HomePage/CategoryFieldAmount";
 // import dynamic from 'next/dynamic';

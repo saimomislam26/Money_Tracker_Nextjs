@@ -76,9 +76,9 @@ module.exports.getAllSpending = async (req, res) => {
         const spending = await Spending.findOne({ user: userId, year, month })
             .populate('days.categories.category');
 
-        // if (!spending) {
-        //     return res.status(404).json({ message: "No spending data found for this month" });
-        // }
+        if (!spending) {
+            return res.status(404).json({ message: "No spending data found for this month" });
+        }
 
         // Function to get the total days in the month
         const totalDaysInMonth = (year, month) => new Date(year, month, 0).getDate();

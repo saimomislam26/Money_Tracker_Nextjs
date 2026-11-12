@@ -3,28 +3,56 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: 246 247 251;
+  --surface: 255 255 255;
+  --surface-2: 241 243 249;
+  --line: 226 230 240;
+  --fg: 17 24 39;
+  --muted: 107 114 128;
+  --brand: 99 102 241;
+  --brand-soft: 238 240 255;
+  --income: 16 185 129;
+  --expense: 244 63 94;
+  --warn: 245 158 11;
+  color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-h1, h2, h3, h4, h5, h6, p, span, div, a, li, td, th,input, textarea, button, label {
-  @apply font-mono;
+.dark {
+  --bg: 10 12 20;
+  --surface: 20 23 34;
+  --surface-2: 29 33 48;
+  --line: 40 45 64;
+  --fg: 238 240 248;
+  --muted: 142 150 175;
+  --brand: 129 140 248;
+  --brand-soft: 30 33 66;
+  --income: 52 211 153;
+  --expense: 251 113 133;
+  --warn: 251 191 36;
+  color-scheme: dark;
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  @apply font-mono;
+@layer base {
+  * { @apply border-line; }
+  html { -webkit-font-smoothing: antialiased; }
+  body { @apply bg-bg text-fg font-sans; }
+  ::selection { background: rgb(var(--brand) / 0.25); }
+  input[type="number"] { -moz-appearance: textfield; }
+  input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.55; cursor: pointer; }
+  .dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+@layer components {
+  .card { @apply rounded-2xl border border-line bg-surface shadow-card; }
+  .input { @apply w-full rounded-xl border border-line bg-surface-2/60 px-3.5 py-2.5 text-sm text-fg placeholder:text-muted/70 outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/15; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/25; }
+  .btn-primary { @apply btn bg-brand text-white shadow-glow hover:brightness-110 dark:text-[#0a0c14]; }
+  .btn-ghost { @apply btn text-muted hover:bg-surface-2 hover:text-fg; }
+  .btn-outline { @apply btn border border-line bg-surface hover:bg-surface-2; }
+  .btn-danger { @apply btn bg-expense/10 text-expense hover:bg-expense/20; }
+  .gradient-text { @apply bg-gradient-to-r from-brand to-fuchsia-500 bg-clip-text text-transparent; }
 }
+
+.scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: rgb(var(--line)); border-radius: 8px; }

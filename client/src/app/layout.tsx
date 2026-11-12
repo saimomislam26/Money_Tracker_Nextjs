@@ -1,47 +1,29 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { Toaster } from "sonner";
+import { AuthProvider } from "@/context/AuthContext";
+import { ThemeProvider, themeScript } from "@/context/ThemeContext";
 
-import Providers from "@/components/Providers";
-import NavbarHandler from "@/components/NavbarHandler";
-import FetchUserInfo from "@/utils/fetchThunkUserInfo";
-import ClientThemeProvider from "@/components/ClientThemeProvider";
+const geist = localFont({ src: "./fonts/GeistVF.woff", variable: "--font-geist", weight: "100 900" });
 
 export const metadata: Metadata = {
-  title: "Home Page",
-  description: "Create Your Daily Expense",
+  title: { default: "Moneywise", template: "%s · Moneywise" },
+  description: "Track spending, set budgets and reach your savings goals.",
 };
+export const viewport: Viewport = { themeColor: "#6366f1" };
 
-export default function RootLayout({
-  children
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body
-        className={`font-mono antialiased`}
-      >
-        <ClientThemeProvider>
-
-          <Providers>
-            {/* <ThemeProvider theme={theme}>
-            <CssBaseline /> */}
-            {/* For every refresh call the thunk function and it needs to be wrapped */}
-            <FetchUserInfo />
-            <NavbarHandler />
+    <html lang="en" suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head>
+      <body className={`${geist.variable} min-h-dvh`}>
+        <ThemeProvider>
+          <AuthProvider>
             {children}
-            <ToastContainer
-              position="top-right"
-              autoClose={3000}
-              closeOnClick
-            />
-            {/* </ThemeProvider> */}
-          </Providers>
-        </ClientThemeProvider>
+            <Toaster position="top-right" richColors closeButton toastOptions={{ className: "!rounded-xl" }} />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

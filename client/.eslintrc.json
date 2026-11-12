@@ -7,6 +7,7 @@
     "@typescript-eslint/no-explicit-any": "warn",
     "@typescript-eslint/prefer-as-const": "warn", 
     "prefer-const": "warn" ,
-    "react/no-unescaped-entities": "warn"
+    "react/no-unescaped-entities": "warn",
+    "react/display-name": "off"
   }
 }

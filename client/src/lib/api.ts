@@ -1,248 +1,45 @@
-import { apiCall } from '@/utils/apiClient';
-import axios, { AxiosError } from 'axios';
-import { toast } from 'react-toastify';
+import axios, { AxiosError } from "axios";
+import Cookies from "js-cookie";
 
-export const registerUser = async (userData: {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-}) => {
-  try {
-    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/user/create-user`, userData);
-    toast.success(response.data?.message)
-    return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      // Axios-specific error handling
-      if (error.response) {
-        // Server responded with a status other than 2xx
-        console.error('Error response:', error.response.data);
-        toast.error(error.response?.data?.message)
-        return error.response.data
-      } else if (error.request) {
-        // Request was made but no response was received
-        console.error('Error request:', error.request);
-        throw new Error('No response from server. Please try again later.');
-      } else {
-        // Something happened in setting up the request
-        toast.error(error.message)
-        console.error('Error message:', error.message);
-        return error
+export const TOKEN_KEY = "mt_token";
+export const COOKIE_KEY = "mt_session"; // distinct from the legacy "token" cookie so stale sessions are ignored
 
-      }
-    } else {
-      // Non-Axios error
-      console.error('Unexpected error:', error);
-      return error
-    }
-  }
+export const api = axios.create({ baseURL: `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api` });
+
+export const getToken = () => (typeof window === "undefined" ? null : localStorage.getItem(TOKEN_KEY));
+export const setToken = (t: string) => {
+  localStorage.setItem(TOKEN_KEY, t);
+  Cookies.set(COOKIE_KEY, t, { expires: 7, sameSite: "lax" }); // read by Next middleware for route protection
+};
+export const clearToken = () => {
+  localStorage.removeItem(TOKEN_KEY);
+  Cookies.remove(COOKIE_KEY);
+  Cookies.remove("token"); // legacy cookie from the previous version
 };
 
-export const loginUser = async (userData: {
-  email: string;
-  password: string;
-}) => {
-  try {
-    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/user/login-user`, userData, {
-      withCredentials: true
-    });
-    localStorage.setItem("token",response.data?._token)
-    toast.success(response.data?.message)
-    return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      // Axios-specific error handling
-      if (error.response) {
-        // Server responded with a status other than 2xx
-        console.error('Error response:', error.response.data);
-        toast.error(error.response?.data?.message)
-        throw error
-      } else if (error.request) {
-        // Request was made but no response was received
-        console.error('Error request:', error.request);
-        throw new Error('No response from server. Please try again later.');
-      } else {
-        // Something happened in setting up the request
-        toast.error(error.message)
-        console.error('Error message:', error.message);
-        throw new Error(error?.message)
+api.interceptors.request.use((cfg) => {
+  const t = getToken();
+  if (t) cfg.headers.Authorization = `Bearer ${t}`;
+  return cfg;
+});
 
-      }
-    } else {
-      // Non-Axios error
-      console.error('Unexpected error:', error);
-      throw new Error('Unexpected error')
-
+api.interceptors.response.use(
+  (r) => r,
+  (err: AxiosError) => {
+    const isAuthCall = err.config?.url?.startsWith("/auth/login") || err.config?.url?.startsWith("/auth/register");
+    if (err.response?.status === 401 && !isAuthCall && typeof window !== "undefined") {
+      clearToken();
+      if (!location.pathname.startsWith("/login")) location.href = "/login";
     }
+    return Promise.reject(err);
   }
+);
+
+export const errMsg = (e: unknown) => {
+  const ax = e as AxiosError<{ message?: string }>;
+  if (ax.response?.data?.message) return ax.response.data.message;
+  if (ax.code === "ERR_NETWORK") return "Can't reach the server. Is the API running?";
+  return (e as Error)?.message || "Something went wrong";
 };
 
-export const setMonthlyIncome = async (info: {
-  year: Number,
-  month: Number,
-  income: Number
-}) => {
-  try {
-    const response = await apiCall({
-      url: '/user/set-user-monthly-income',
-      method: 'POST',
-      data: info,
-      withCredentials: true
-    });
-
-    toast.success(response.data?.message);
-    return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      // Axios-specific error handling
-      if (error.response) {
-        // Server responded with a status other than 2xx
-        console.error('Error response:', error.response.data);
-        if (error.response.status !== 401) {
-          toast.error(error.response?.data?.message);
-        }
-        return error.response.data
-      } else if (error.request) {
-        // Request was made but no response was received
-        console.error('Error request:', error.request);
-        throw new Error('No response from server. Please try again later.');
-      } else {
-        // Something happened in setting up the request
-        toast.error(error.message)
-        console.error('Error message:', error.message);
-        return error
-
-      }
-    } else {
-      // Non-Axios error
-      console.error('Unexpected error:', error);
-      return error
-    }
-  }
-}
-export const updateUser = async (userData: {
-  password?: string,
-  income?: number | null,
-  firstName?: string,
-  lastName?: string,
-  email?: string
-}) => {
-  try {
-    const response = await apiCall({
-      url: '/user/update-user',
-      method: 'PUT',
-      data: userData,
-      withCredentials: true
-    });
-
-    toast.success(response.data?.message);
-    return response.data;
-
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      // Axios-specific error handling
-      if (error.response) {
-        console.error('Error response:', error.response);
-        if (error.response.status !== 401) {
-          toast.error(error.response?.data?.message);
-        }
-        // Instead of returning, throw the error to be caught in updateIncome
-        throw error;
-      } else if (error.request) {
-        console.error('Error request:', error.request);
-        toast.error('No response from server. Please try again later');
-        throw new Error('No response from server. Please try again later.');
-      } else {
-        console.error('Error message:', error.message);
-        toast.error(error.message);
-        throw new Error(error.message); // Throw custom error
-      }
-    } else {
-      console.error('Unexpected error:', error);
-      throw new Error('An unexpected error occurred.'); // Generic error thrown
-    }
-  }
-};
-
-export const updateUserProfileImage = async (formData:FormData) => {
-  
-  try {
-    const response = await apiCall({
-      url: '/user/upload-profile-pic',
-      method: 'PUT',
-      data: formData,
-      withCredentials: true
-    });
-
-    toast.success(response.data?.message);
-    return response.data;
-
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      // Axios-specific error handling
-      if (error.response) {
-        console.error('Error response:', error.response);
-        if (error.response.status !== 401) {
-          toast.error(error.response?.data?.message);
-        }
-        // Instead of returning, throw the error to be caught in updateIncome
-        throw error;
-      } else if (error.request) {
-        console.error('Error request:', error.request);
-        toast.error('No response from server. Please try again later');
-        throw new Error('No response from server. Please try again later.');
-      } else {
-        console.error('Error message:', error.message);
-        toast.error(error.message);
-        throw new Error(error.message); // Throw custom error
-      }
-    } else {
-      console.error('Unexpected error:', error);
-      throw new Error('An unexpected error occurred.'); // Generic error thrown
-    }
-  }
-};
-
-export const getUserInfo = async () => {
-  const now = new Date();
-  let month: string | number = String(now.getMonth() + 1).padStart(2, '0');
-  month = Number(month)
-  const year = Number(now.getFullYear());
-  try {
-    const response = await apiCall({
-      url: `/user/get-user-info?year=${year}&month=${month}`,
-      method: 'GET',
-      withCredentials: true
-    })
-
-    toast.success(response.data?.message)
-    return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      // Axios-specific error handling
-      if (error.response) {
-        // Server responded with a status other than 2xx
-        console.error('Error response:', error.response.data);
-        if (error.response.status !== 401) toast.error(error.response?.data?.message)
-        throw error
-      } else if (error.request) {
-        // Request was made but no response was received
-        toast.error(error.request)
-        console.error('Error request:', error.request);
-        throw new Error('No response from server. Please try again later.');
-      } else {
-        // Something happened in setting up the request
-        toast.error(error.message)
-        console.error('Error message:', error.message);
-        throw new Error(error.message);
-      }
-    } else {
-      // Non-Axios error
-      console.error('Unexpected error:', error);
-      throw new Error('An unexpected error occurred.');
-    }
-  }
-}
-
-
+export const fetcher = <T,>(url: string) => api.get<T>(url).then((r) => r.data);

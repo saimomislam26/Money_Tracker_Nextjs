@@ -1,31 +1,16 @@
-// middleware.ts
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from "next/server";
 
-// List of protected routes
-const protectedRoutes = ['/','/profile','/expenses'];
+const publicPaths = ["/login", "/register"];
 
-export function middleware(request: NextRequest) {
-  const token = request.cookies.get('token')?.value;
-  // console.log({token}, request.nextUrl, request.url);
-  
-  // Check if the user is accessing a protected route
-  if (protectedRoutes.includes(request.nextUrl.pathname)) {
-    if (!token) {
-      // Redirect to login if no token is present
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
-  }
+export function middleware(req: NextRequest) {
+  const hasToken = Boolean(req.cookies.get("mt_session")?.value);
+  const { pathname } = req.nextUrl;
+  const isPublic = publicPaths.includes(pathname);
 
-  if(token && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/register')){
-    return NextResponse.redirect(new URL('/', request.url));
-  }
-
-  // Allow the request to proceed if authenticated 
+  if (!hasToken && !isPublic) return NextResponse.redirect(new URL("/login", req.url));
+  if (hasToken && isPublic) return NextResponse.redirect(new URL("/dashboard", req.url));
+  if (pathname === "/") return NextResponse.redirect(new URL("/dashboard", req.url));
   return NextResponse.next();
 }
 
-// Specify which routes should use this middleware
-export const config = {
-  matcher: ['/', '/register', '/login','/profile','/expenses'], // Add more protected routes if needed
-};
+export const config = { matcher: ["/((?!_next|api|favicon.ico|.*\\..*).*)"] };
